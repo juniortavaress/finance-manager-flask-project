@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='general_style.css')}}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='main_style.css')}}">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <title>Minha Página Inicial</title>
+</head>
+
+
+
+<body>
+
+    <header>
+        <div id="header-left">
+            <div id="image_logo"><img src="{{ url_for('static', filename='images/logo_png.png') }}" alt="logo_png"></div>
+            <div class='icon-sidebar' role="button" >
+                <span class="material-symbols-outlined">add</span>
+            </div>
+            <div class='icon-sidebar' role="button" >
+                <span class="material-symbols-outlined">search</span>
+            </div>
+        </div>   
+        
+        <div  id="header-right">
+            <div class='icon-sidebar' role="button" >
+                <span class="material-symbols-outlined">notifications</span>
+            </div>
+            <div class='icon-sidebar' role="button" >
+                <span class="material-symbols-outlined">help</span>
+            </div>
+            <div class='icon-sidebar' role="button" >
+                <span class="material-symbols-outlined">account_circle</span>
+            </div>
+        </div>
+
+    </header>
+    
+    <main>
+        <section id="sidebar">
+            <div id="sidebar-functions">
+                <div class='icon-sidebar' role="button" data-target="home">
+                    <span class="material-symbols-outlined" >home</span>
+                </div>
+                <div class='icon-sidebar' role="button" data-target="euro">
+                    <span class="material-symbols-outlined">euro</span>
+                </div>
+                <div class='icon-sidebar' role="button" data-target="finance">
+                    <span class="material-symbols-outlined">finance_mode</span>
+                </div>
+                <div class='icon-sidebar' role="button" data-target="table">
+                    <span class="material-symbols-outlined">view_list</span>
+                </div>
+            </div>
+
+            <div id="sidebar-setup">
+                <div class='icon-sidebar' role="button" data-target="build">
+                    <span class="material-symbols-outlined">build_circle</span>
+                </div>
+                <div class='icon-sidebar' role="button" data-target="settings">
+                    <span class="material-symbols-outlined">settings</span>
+                </div>
+            </div>
+        </section>
+        <section id="general-content">
+            <div id="content-selection">cabecalho</div>
+            <div id="main-graph-content">
+                <div class="content-view" id="content-home">Página Inicial</div>
+                
+                <div class="content-view" id="content-euro">
+                    <div id="left-graph-content">
+                        <div id="left-top-graph">
+                            <div id="header-graph-01">
+                                <div id="title-graph-01"> Entradas e Saídas </div>
+                                <div id="select-graph-01">
+                                    <select id="anoSelect">
+                                        <option value="all" selected>Todos</option>
+                                        <option value="2024">2024</option>
+                                        <option value="2025">2025</option>
+                                    </select>
+
+                                    <select id="viewSelect">
+                                        <option value="mes">Mensal</option>
+                                        <option value="ano">Anual</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div id="graph01">
+                                <canvas id="myChart" ></canvas>
+                            </div>
+                        </div>
+
+                        <div id="left-bottom-graph">grafico esquerda 02</div>
+                    </div>
+                    <div id="right-graph-content">
+                        <div id="right-top-graph">grafico direita 01</div>
+                        <div id="right-bottom-graph">grafico direita 02</div>
+                    </div>
+                </div>
+
+                <div class="content-view" id="content-finance" style="display: none;">
+                    Módulo Financeiro 📊
+                    <div style="background-color: blue; width: 100px;"></div>
+                    <div style="background-color: blue;"></div>
+                </div>
+
+                <div class="content-view" id="content-table" style="display: none;">Lista de Transações 📋</div>
+                <div class="content-view" id="content-build" style="display: none;">Ferramentas e Builds 🔧</div>
+                <div class="content-view" id="content-settings" style="display: none;">Configurações ⚙️</div>
+
+            </div>
+        </section>
+
+    </main>
+    
+    <script type="application/json" id="dados-json"> {{ datas_graph01|safe }}</script>
+    <script src="{{ url_for('static', filename='js/graph01.js') }}"></script>
+
+
+    <!-- <footer><p>© 2025 Jucélio Tavares Junior. Todos os direitos reservados.</p></footer> -->
+
+    
+</body>
+</html>
+
+
+<script>
+const buttons = document.querySelectorAll('.icon-sidebar');
+const contents = document.querySelectorAll('.content-view');
+
+buttons.forEach(button => {
+    button.addEventListener('click', () => {
+        const target = button.dataset.target;
+
+        // Remove 'active' de todos os botões e conteúdos
+        buttons.forEach(btn => btn.classList.remove('active'));
+        contents.forEach(content => content.classList.remove('active'));
+
+        // Ativa botão clicado e conteúdo correspondente
+        button.classList.add('active');
+        const toShow = document.getElementById('content-' + target);
+        if (toShow) {
+            toShow.classList.add('active');
+        }
+    });
+});
+</script>

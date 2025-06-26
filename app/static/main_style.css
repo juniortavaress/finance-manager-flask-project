@@ -1,0 +1,281 @@
+#sidebar {
+    background-color: #373752;
+    width: 60px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+#general-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    width: 100%;
+    height: 100%;
+}
+
+#content-selection {
+    height: 9vh;
+    width: 100%;
+    background-color: #ffffff;
+    border-bottom: solid 2px #dcdadb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#main-graph-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    gap: 2vh;
+    height: 100%;
+    
+    padding: 2vh;
+}
+
+#left-graph-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 60%;
+    height: 100%;
+    gap: 2vh;
+}
+
+#right-graph-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 40%;
+    height: 100%;
+    gap: 2vh;
+    
+    
+}
+
+#left-top-graph {
+    display: flex;
+    height: 60%;
+    width: 100%;
+    background-color: #ffffff;
+    padding: 3vh;
+    padding-bottom: 0vh;
+    padding-top: 0vh;
+    gap: 1vh;
+    border-radius: 2vh;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+#left-bottom-graph {
+    display: flex;
+    height: 40%;
+    width: 100%;
+    background-color: #ffffff;
+    
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#right-top-graph {
+    display: flex;
+    height: 50%;
+    width: 100%;
+    background-color: #ffffff;
+
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#right-bottom-graph {
+    display: flex;
+    height: 50%;
+    width: 100%;
+    background-color: #ffffff;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#header-graph-01 {
+    width: 100%;
+    height: 15%;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    
+
+    /* background-color: #373752; */
+
+}
+
+#graph01 {
+  height:75%; /* 80% da altura do elemento pai */
+  width: 100%;
+}
+
+#title-graph-01{
+    font-size: 1.2rem;
+    font-family: Roboto, sans-serif;
+    /* background-color: #373752; */
+}
+
+#select-graph-01{
+    /* background-color: #373752; */
+    width: 30%;
+    height: 60%;
+
+    display: flex;
+    align-items: center;
+    justify-content: right;
+    gap: 5%
+
+}
+
+#select-graph-01 select {
+  height: 80%; /* caixa mais alta */
+  width: 40%;
+  padding: 0 12px;
+  font-size: 1rem;
+  color: #333; /* cor do texto */
+  font-family: Roboto, sans-serif;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  appearance: none; /*remove estilo padrão do sistema*/
+  background-color: white;
+  background-image: url("data:image/svg+xml;utf8,<svg fill='gray' height='20' viewBox='0 0 24 24' width='20' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>"); 
+  background-repeat: no-repeat;
+  background-position: right 5px center;
+  background-size: 16px 16px;
+  cursor: pointer;
+}
+
+
+.icon-sidebar {
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 9vh;
+
+}
+
+.icon-sidebar:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.icon-sidebar .material-symbols-outlined {
+    position: relative;
+    color: #64647f;
+    font-size: 2rem;
+    transition: color 0.2s ease;
+}
+
+/* Ícone ativo */
+.icon-sidebar.active .material-symbols-outlined {
+    color: white;
+}
+
+/* Barra vertical à esquerda do ícone */
+.icon-sidebar.active .material-symbols-outlined::before {
+    content: '';
+    position: absolute;
+    left: -10px; /* ajuste a distância da barra */
+    top: 0;
+    height: 100%;
+    width: 4px;
+    background-color: blue;
+    border-radius: 2px;
+}
+
+
+.content-view {
+  display: none;
+  /* ... */
+}
+
+.content-view.active {
+  display: flex;
+}
+
+.content-view {
+  display: none; /* esconde tudo */
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  gap: 2vh;
+  height: 100%;
+
+}
+
+.content-view.active {
+  display: flex; /* mostra só o ativo */
+}
+
+#content-euro {
+  display: flex ;
+  flex-direction: row ;
+  gap: 2vh ;
+  height: 100% ;
+  width: 100%;
+}
+
+#main-graph-content {
+    display: flex;
+    flex-direction: row; /* garante que os filhos fiquem lado a lado */
+    align-items: stretch; /* ou center, dependendo */
+    justify-content: flex-start; /* para alinhar do começo */
+    width: 100%;
+    gap: 2vh;
+    height: 100%;
+
+}
+
+
+#header-left {
+    display: flex;
+    align-items: center;
+    gap: 2vh;
+    
+}
+
+#header-right {
+    display: flex;
+    align-items: center;
+    gap: 2vh;
+    padding-right: 3vh;
+    
+}
+/* Define tamanho do contêiner da logo */
+#image_logo {
+    height: 9vh; /* ou qualquer tamanho fixo desejado */
+    padding-right: 15px;
+    display: flex;
+    align-items: center;
+    padding-left: 0.5vh;
+}
+
+/* Estiliza a imagem para preencher o contêiner corretamente */
+#image_logo img {
+    height: 80%;
+    width: auto;
+    object-fit: contain;
+}
