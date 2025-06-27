@@ -35,6 +35,7 @@ window.addEventListener('DOMContentLoaded', () => {
         labels = [];
         entrada = [];
         saida = [];
+        saldo =[];
 
         // Para cada ano nos dados
         for (const year in dados) {
@@ -43,6 +44,7 @@ window.addEventListener('DOMContentLoaded', () => {
             labels.push(`${mes} ${year}`);
             entrada.push(dados[year].entrada[i]); // pega entrada do mês i
             saida.push(dados[year].saida[i]);     // pega saída do mês i
+            saldo.push(dados[year].saldo[i]);     // pega saída do mês i
           });
         }
       } else {
@@ -52,6 +54,7 @@ window.addEventListener('DOMContentLoaded', () => {
         entrada = labels.map(ano => somaArray(dados[ano].entrada));
         // para cada ano, soma as saídas e coloca no array saida
         saida = labels.map(ano => somaArray(dados[ano].saida));
+        saldo = labels.map(ano => somaArray(dados[ano].saldo));
       }
     } else {
       // Para um ano específico selecionado
@@ -63,20 +66,16 @@ window.addEventListener('DOMContentLoaded', () => {
         labels = dadosAno.labels;
         entrada = dadosAno.entrada;
         saida = dadosAno.saida;
+        saldo = dadosAno.saldo;
       } else {
         // Visualização anual: soma total de entrada e saída para aquele ano
         labels = [ano]; // só um label que é o ano
         entrada = [somaArray(dadosAno.entrada)];
         saida = [somaArray(dadosAno.saida)];
+        saldo = [somaArray(dadosAno.saldo)];
       }
     }
 
-    // Calcula saldo = entrada - saída para cada ponto
-    const saldo = entrada.map((v, i) => v - saida[i]);
-    // console.log("Labels:", labels);
-    // console.log("Entradas:", entrada);
-    // console.log("Saídas:", saida);
-    // console.log("Saldos:", saldo);
 
     // Se já existir um gráfico, destrói para recriar
     if (myChart) myChart.destroy();

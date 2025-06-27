@@ -42,7 +42,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    width: 60%;
+    width: 70%;
     height: 100%;
     gap: 2vh;
 }
@@ -52,7 +52,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    width: 40%;
+    width: 30%;
     height: 100%;
     gap: 2vh;
     
@@ -81,9 +81,14 @@
     height: 40%;
     width: 100%;
     background-color: #ffffff;
-    
+    padding: 3vh;
+    padding-bottom: 0vh;
+    padding-top: 0vh;
+    gap: 1vh;
+    border-radius: 2vh;
 
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
 }
@@ -111,9 +116,9 @@
     justify-content: center;
 }
 
-#header-graph-01 {
+.header-graph {
     width: 100%;
-    height: 15%;
+    height: 6vh;
 
     display: flex;
     align-items: center;
@@ -129,13 +134,19 @@
   width: 100%;
 }
 
-#title-graph-01{
+#graph02 {
+  height:75%; /* 80% da altura do elemento pai */
+  width: 100%;
+  /* background-color: #373752; */
+}
+
+.title-graph{
     font-size: 1.2rem;
     font-family: Roboto, sans-serif;
     /* background-color: #373752; */
 }
 
-#select-graph-01{
+.select-graph{
     /* background-color: #373752; */
     width: 30%;
     height: 60%;
@@ -147,7 +158,7 @@
 
 }
 
-#select-graph-01 select {
+.select-graph select {
   height: 80%; /* caixa mais alta */
   width: 40%;
   padding: 0 12px;
@@ -166,7 +177,7 @@
 }
 
 
-.icon-sidebar {
+.button-sidebar {
     cursor: pointer;
     transition: background-color 0.2s ease;
     border-radius: 6px;
@@ -174,14 +185,20 @@
     align-items: center;
     justify-content: center;
     min-height: 9vh;
-
 }
 
-.icon-sidebar:hover {
+.button-sidebar:hover {
     background-color: rgba(255, 255, 255, 0.2);
+    
 }
 
-.icon-sidebar .material-symbols-outlined {
+.button-sidebar:hover .material-symbols-outlined{
+    color: white;
+    font-size: 2.2rem;
+}
+
+
+.button-sidebar .material-symbols-outlined {
     position: relative;
     color: #64647f;
     font-size: 2rem;
@@ -189,12 +206,12 @@
 }
 
 /* Ícone ativo */
-.icon-sidebar.active .material-symbols-outlined {
+.button-sidebar.active .material-symbols-outlined {
     color: white;
 }
 
 /* Barra vertical à esquerda do ícone */
-.icon-sidebar.active .material-symbols-outlined::before {
+.button-sidebar.active .material-symbols-outlined::before {
     content: '';
     position: absolute;
     left: -10px; /* ajuste a distância da barra */
@@ -206,29 +223,29 @@
 }
 
 
-.content-view {
-  display: none;
-  /* ... */
+.button-header {
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 9vh;
 }
 
-.content-view.active {
-  display: flex;
+.button-header:hover .material-symbols-outlined{
+    color: white;
+    font-size: 2.2rem;
 }
 
-.content-view {
-  display: none; /* esconde tudo */
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  gap: 2vh;
-  height: 100%;
-
+.button-header .material-symbols-outlined {
+    position: relative;
+    color: #64647f;
+    font-size: 2rem;
+    transition: color 0.2s ease;
+   
 }
 
-.content-view.active {
-  display: flex; /* mostra só o ativo */
-}
 
 #content-euro {
   display: flex ;

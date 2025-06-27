@@ -17,22 +17,22 @@
     <header>
         <div id="header-left">
             <div id="image_logo"><img src="{{ url_for('static', filename='images/logo_png.png') }}" alt="logo_png"></div>
-            <div class='icon-sidebar' role="button" >
+            <div class='button-header' role="button" >
                 <span class="material-symbols-outlined">add</span>
             </div>
-            <div class='icon-sidebar' role="button" >
+            <div class='button-header' role="button" >
                 <span class="material-symbols-outlined">search</span>
             </div>
         </div>   
         
         <div  id="header-right">
-            <div class='icon-sidebar' role="button" >
+            <div class='button-header' role="button" >
                 <span class="material-symbols-outlined">notifications</span>
             </div>
-            <div class='icon-sidebar' role="button" >
+            <div class='button-header' role="button" >
                 <span class="material-symbols-outlined">help</span>
             </div>
-            <div class='icon-sidebar' role="button" >
+            <div class='button-header' role="button" >
                 <span class="material-symbols-outlined">account_circle</span>
             </div>
         </div>
@@ -42,25 +42,25 @@
     <main>
         <section id="sidebar">
             <div id="sidebar-functions">
-                <div class='icon-sidebar' role="button" data-target="home">
+                <div class='button-sidebar' role="button" data-target="home">
                     <span class="material-symbols-outlined" >home</span>
                 </div>
-                <div class='icon-sidebar' role="button" data-target="euro">
+                <div class='button-sidebar' role="button" data-target="euro">
                     <span class="material-symbols-outlined">euro</span>
                 </div>
-                <div class='icon-sidebar' role="button" data-target="finance">
+                <div class='button-sidebar' role="button" data-target="finance">
                     <span class="material-symbols-outlined">finance_mode</span>
                 </div>
-                <div class='icon-sidebar' role="button" data-target="table">
+                <div class='button-sidebar' role="button" data-target="table">
                     <span class="material-symbols-outlined">view_list</span>
                 </div>
             </div>
 
             <div id="sidebar-setup">
-                <div class='icon-sidebar' role="button" data-target="build">
+                <div class='button-sidebar' role="button" data-target="build">
                     <span class="material-symbols-outlined">build_circle</span>
                 </div>
-                <div class='icon-sidebar' role="button" data-target="settings">
+                <div class='button-sidebar' role="button" data-target="settings">
                     <span class="material-symbols-outlined">settings</span>
                 </div>
             </div>
@@ -68,14 +68,14 @@
         <section id="general-content">
             <div id="content-selection">cabecalho</div>
             <div id="main-graph-content">
-                <div class="content-view" id="content-home">Página Inicial</div>
+                
                 
                 <div class="content-view" id="content-euro">
                     <div id="left-graph-content">
                         <div id="left-top-graph">
-                            <div id="header-graph-01">
-                                <div id="title-graph-01"> Entradas e Saídas </div>
-                                <div id="select-graph-01">
+                            <div class="header-graph">
+                                <div class="title-graph"> Entradas e Saídas </div>
+                                <div class="select-graph">
                                     <select id="anoSelect">
                                         <option value="all" selected>Todos</option>
                                         <option value="2024">2024</option>
@@ -93,7 +93,24 @@
                             </div>
                         </div>
 
-                        <div id="left-bottom-graph">grafico esquerda 02</div>
+                        <div id="left-bottom-graph">
+                            
+                            <div class="header-graph">
+                                <div class="title-graph"> Saldo Acumulado </div>
+                                <div class="select-graph">
+                                    <select id="anoSelect02">
+                                        <option value="all" selected>Todos</option>
+                                        <option value="2024">2024</option>
+                                        <option value="2025">2025</option>
+                                    </select>
+
+                                </div>
+                            </div>
+                            <div id="graph02">
+                                <canvas id="cumulativeChart" ></canvas>
+                            </div>
+
+                        </div>
                     </div>
                     <div id="right-graph-content">
                         <div id="right-top-graph">grafico direita 01</div>
@@ -101,15 +118,7 @@
                     </div>
                 </div>
 
-                <div class="content-view" id="content-finance" style="display: none;">
-                    Módulo Financeiro 📊
-                    <div style="background-color: blue; width: 100px;"></div>
-                    <div style="background-color: blue;"></div>
-                </div>
 
-                <div class="content-view" id="content-table" style="display: none;">Lista de Transações 📋</div>
-                <div class="content-view" id="content-build" style="display: none;">Ferramentas e Builds 🔧</div>
-                <div class="content-view" id="content-settings" style="display: none;">Configurações ⚙️</div>
 
             </div>
         </section>
@@ -118,6 +127,7 @@
     
     <script type="application/json" id="dados-json"> {{ datas_graph01|safe }}</script>
     <script src="{{ url_for('static', filename='js/graph01.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/graph02.js') }}"></script>
 
 
     <!-- <footer><p>© 2025 Jucélio Tavares Junior. Todos os direitos reservados.</p></footer> -->
@@ -126,25 +136,15 @@
 </body>
 </html>
 
-
 <script>
-const buttons = document.querySelectorAll('.icon-sidebar');
-const contents = document.querySelectorAll('.content-view');
+    const sidebarButtons = document.querySelectorAll('.button-sidebar');
 
-buttons.forEach(button => {
-    button.addEventListener('click', () => {
-        const target = button.dataset.target;
-
-        // Remove 'active' de todos os botões e conteúdos
-        buttons.forEach(btn => btn.classList.remove('active'));
-        contents.forEach(content => content.classList.remove('active'));
-
-        // Ativa botão clicado e conteúdo correspondente
-        button.classList.add('active');
-        const toShow = document.getElementById('content-' + target);
-        if (toShow) {
-            toShow.classList.add('active');
-        }
+    sidebarButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            // Remove a classe "active" de todos os botões
+            sidebarButtons.forEach(b => b.classList.remove('active'));
+            // Adiciona a classe "active" ao botão clicado
+            btn.classList.add('active');
+        });
     });
-});
 </script>
