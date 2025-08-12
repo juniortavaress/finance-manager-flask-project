@@ -1,0 +1,6 @@
+<ul class="nav-links">
+    <li><a href="{{ url_for('main.homepage') }}" class="nav-item {% if active_page == 'home' %}active{% endif %}">Home</a></li>
+    <li><a href="{{ url_for('main.finance_real') }}" class="nav-item {% if active_page == 'finance_real' %}active{% endif %}">Finance (R$)</a></li>
+    <li><a href="{{ url_for('main.finance_euro') }}" class="nav-item {% if active_page == 'finance_euro' %}active{% endif %}">Finance (€)</a></li>
+    <li><a href="{{ url_for('main.investments') }}" class="nav-item {% if active_page == 'investments' %}active{% endif %}">Investments</a></li>
+</ul>

@@ -1,150 +1,139 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="stylesheet" href="{{ url_for('static', filename='general_style.css')}}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='main_style.css')}}">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-    <title>Minha Página Inicial</title>
-</head>
+{% extends "base.html" %}
 
+{% block title %}Home{% endblock %}
 
-
-<body>
-
-    <header>
-        <div id="header-left">
-            <div id="image_logo"><img src="{{ url_for('static', filename='images/logo_png.png') }}" alt="logo_png"></div>
-            <div class='button-header' role="button" >
-                <span class="material-symbols-outlined">add</span>
-            </div>
-            <div class='button-header' role="button" >
-                <span class="material-symbols-outlined">search</span>
-            </div>
-        </div>   
+{% block page %}
+    <div id="content-home">
         
-        <div  id="header-right">
-            <div class='button-header' role="button" >
-                <span class="material-symbols-outlined">notifications</span>
-            </div>
-            <div class='button-header' role="button" >
-                <span class="material-symbols-outlined">help</span>
-            </div>
-            <div class='button-header' role="button" >
-                <span class="material-symbols-outlined">account_circle</span>
-            </div>
-        </div>
-
-    </header>
-    
-    <main>
-        <section id="sidebar">
-            <div id="sidebar-functions">
-                <div class='button-sidebar' role="button" data-target="home">
-                    <span class="material-symbols-outlined" >home</span>
+        <section id="financial-summary">
+        {% for section in ["other", "incomes", "expenses", "balance"] %}
+            <article class="summary-card">
+                <div class="summary-header">
+                    <span class="material-symbols-outlined">
+                    {% if section == "other" %} trending_up
+                    {% elif section == "incomes" %} money_bag
+                    {% elif section == "expenses" %} credit_card
+                    {% elif section == "balance" %} account_balance_wallet
+                    {% endif %}
+                    </span>
+                    <h2 class="summary-title">
+                    {% if section == "other" %}Investments
+                    {% elif section == "incomes" %}Incomes
+                    {% elif section == "expenses" %}Expenses
+                    {% elif section == "balance" %}Balance
+                    {% endif %}
+                    </h2>
                 </div>
-                <div class='button-sidebar' role="button" data-target="euro">
-                    <span class="material-symbols-outlined">euro</span>
+                <div class="summary-content">
+                    {% if section == "other" %}
+                    <div class="summary-data"> R$ 5.000,00 </div>
+                    <div class="summary-data"> R$ 5.000,00 </div>
+                    {% elif section == "incomes" %}
+                    <div class="summary-data"> € {{ values["euro_income"] }} </div>
+                    <div class="summary-data"> R$ {{ values["real_income"] }} </div>
+                    {% elif section == "expenses" %}
+                    <div class="summary-data"> € {{ values["euro_expense"] }} </div>
+                    <div class="summary-data"> R$ {{ values["real_expense"] }} </div>
+                    {% elif section == "balance" %}
+                    <div class="summary-data"> € {{ values["euro_balance"] }} </div>
+                    <div class="summary-data"> R$ {{ values["real_balance"] }} </div>
+                    {% endif %}
                 </div>
-                <div class='button-sidebar' role="button" data-target="finance">
-                    <span class="material-symbols-outlined">finance_mode</span>
-                </div>
-                <div class='button-sidebar' role="button" data-target="table">
-                    <span class="material-symbols-outlined">view_list</span>
-                </div>
-            </div>
-
-            <div id="sidebar-setup">
-                <div class='button-sidebar' role="button" data-target="build">
-                    <span class="material-symbols-outlined">build_circle</span>
-                </div>
-                <div class='button-sidebar' role="button" data-target="settings">
-                    <span class="material-symbols-outlined">settings</span>
-                </div>
-            </div>
-        </section>
-        <section id="general-content">
-            <div id="content-selection">cabecalho</div>
-            <div id="main-graph-content">
-                
-                
-                <div class="content-view" id="content-euro">
-                    <div id="left-graph-content">
-                        <div id="left-top-graph">
-                            <div class="header-graph">
-                                <div class="title-graph"> Entradas e Saídas </div>
-                                <div class="select-graph">
-                                    <select id="anoSelect">
-                                        <option value="all" selected>Todos</option>
-                                        <option value="2024">2024</option>
-                                        <option value="2025">2025</option>
-                                    </select>
-
-                                    <select id="viewSelect">
-                                        <option value="mes">Mensal</option>
-                                        <option value="ano">Anual</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div id="graph01">
-                                <canvas id="myChart" ></canvas>
-                            </div>
-                        </div>
-
-                        <div id="left-bottom-graph">
-                            
-                            <div class="header-graph">
-                                <div class="title-graph"> Saldo Acumulado </div>
-                                <div class="select-graph">
-                                    <select id="anoSelect02">
-                                        <option value="all" selected>Todos</option>
-                                        <option value="2024">2024</option>
-                                        <option value="2025">2025</option>
-                                    </select>
-
-                                </div>
-                            </div>
-                            <div id="graph02">
-                                <canvas id="cumulativeChart" ></canvas>
-                            </div>
-
-                        </div>
-                    </div>
-                    <div id="right-graph-content">
-                        <div id="right-top-graph">grafico direita 01</div>
-                        <div id="right-bottom-graph">grafico direita 02</div>
-                    </div>
-                </div>
-
-
-
-            </div>
+            </article>
+        {% endfor %}
         </section>
 
-    </main>
+
+
+        <section id="add-transaction">
+            <form id="transaction-form" method="POST" action="{{ url_for('main.add_transaction') }}">
+
+                <div class="form-group">
+                <label for="date">Date</label>
+                <input class="info" type="date" id="date" name="date" required>
+                </div>
+
+                <div class="form-group">
+                <label for="type">Type</label>
+                <select class="info" id="type" name="type" required>
+                    <option value="Income">Income</option>
+                    <option value="Expense">Expense</option>
+                </select>
+                </div>
+
+                <div class="form-group">
+                <label for="description">Description</label>
+                <input class="info" type="text" id="description" name="description" placeholder="Enter description" required>
+                </div>
+
+                <div class="form-group">
+                <label for="category">Category</label>
+                <select class="info" id="category" name="category" required>
+                    {% for category in ["Food", "Monthly Bills", "Cleaning/Hygiene", "Takeout", "Travel", "Housing", "Mensa", "Others", "Restaurant", "Clothing", "Investments", "Salary"] %}
+                    <option value="{{ category }}">{{ category }}</option>
+                    {% endfor %}
+                </select>
+                </div>
+
+                <div class="form-group">
+                <label for="amount">Amount</label>
+                <input class="info" type="number" id="amount" name="value" placeholder="Enter amount" step="0.01" required>
+                </div>
+
+                <div class="form-group">
+                <label for="currency">Currency</label>
+                <select class="info" id="currency" name="coin" required>
+                    <option value="Real">BRL</option>
+                    <option value="Euro">EUR</option>
+                </select>
+                </div>
+
+                <div class="form-group">
+                <button class="submit-btn" type="submit">Add Transaction</button>
+                </div>
+
+            </form>
+        </section>
+
+
+
+        <section id="display-transactions" aria-label="Transaction Table">
+            <div id="table-information-container">
+                <table id="transaction-table">
+                <thead>
+                    <tr>
+                    <th>Date</th>
+                    <th>Description</th>
+                    <th>Type</th>
+                    <th>Category</th>
+                    <th>Amount</th>
+                    <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for t in transactions %}
+                    <tr>
+                    <td>{{ t.date.strftime('%d/%m/%Y') }}</td>
+                    <td>{{ t.description }}</td>
+                    <td>{{ t.type }}</td>
+                    <td>{{ t.category }}</td>
+                    <td>{{ "€" if t.coin_type == "Euro" else "R$" }} {{ "{:,.2f}".format(t.value) }}</td>
+                    <td>
+                        <button class="edit-btn">Edit</button>
+
+                        <form method="POST" action="{{ url_for('main.delete_transaction', transaction_id=t.id) }}" style="display: inline;">
+                            <button class="delete-btn">Delete</button>
+                        </form>
+                        
+                        
+                    </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                </table>
+            </div>
+        </section>
+
+    </div>
     
-    <script type="application/json" id="dados-json"> {{ datas_graph01|safe }}</script>
-    <script src="{{ url_for('static', filename='js/graph01.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/graph02.js') }}"></script>
-
-
-    <!-- <footer><p>© 2025 Jucélio Tavares Junior. Todos os direitos reservados.</p></footer> -->
-
-    
-</body>
-</html>
-
-<script>
-    const sidebarButtons = document.querySelectorAll('.button-sidebar');
-
-    sidebarButtons.forEach(btn => {
-        btn.addEventListener('click', () => {
-            // Remove a classe "active" de todos os botões
-            sidebarButtons.forEach(b => b.classList.remove('active'));
-            // Adiciona a classe "active" ao botão clicado
-            btn.classList.add('active');
-        });
-    });
-</script>
+{% endblock %}

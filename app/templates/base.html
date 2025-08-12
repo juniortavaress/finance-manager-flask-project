@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}My Dashboard{% endblock %}</title>
+
+    <!-- External Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/layout.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/finance_euro.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/finance_real.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/homepage.css') }}">
+</head>
+
+
+<body>
+    {% include "components/header.html" %}
+    
+    <main>
+        <aside id="sidebar">{% include "components/sidebar.html" %}</aside>
+
+        <section id="main-content"> 
+            <nav id="top-nav">{% include "components/navbar.html" %}</nav>
+            <div id="page-content">{% block page %}{% endblock %}</div>
+        </section>
+    </main>
+    
+    <!-- <footer><p>© 2025 Jucélio Tavares Junior. Todos os direitos reservados.</p></footer> -->    
+</body>
+
+
+</html>
+
+{% include "components/scripts.html" %}

@@ -15,5 +15,20 @@ def create_app():
 
     # from app import routes
     from app.routes import main
+    from app.models import User
     app.register_blueprint(main)
+
+    # Para criar a db pela primeira vez
+    with app.app_context():
+        database.create_all()
+
+        
+        user = User.query.filter_by(email='test@gmail.com').first()
+        if not user:
+            user = User(name='Junior Tavares', email='test@gmail.com')
+            user.set_password('testflask')
+            database.session.add(user)
+            database.session.commit()
+
     return app
+
