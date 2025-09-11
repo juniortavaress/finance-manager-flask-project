@@ -26,8 +26,8 @@
                 </div>
                 <div class="summary-content">
                     {% if section == "other" %}
-                    <div class="summary-data"> R$ 5.000,00 </div>
-                    <div class="summary-data"> R$ 5.000,00 </div>
+                    <div class="summary-data"> R$ {{ values["investment_contribuition"] }} </div>
+                    <div class="summary-data"> R$ 9.523,32 </div>
                     {% elif section == "incomes" %}
                     <div class="summary-data"> € {{ values["euro_income"] }} </div>
                     <div class="summary-data"> R$ {{ values["real_income"] }} </div>

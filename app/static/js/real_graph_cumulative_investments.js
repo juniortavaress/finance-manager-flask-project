@@ -3,7 +3,7 @@ console.log("real_graph_cumulative_investments.js foi carregado ✅");
 document.addEventListener('DOMContentLoaded', () => {
 
   try{
-    const rawJson = document.getElementById('data-finance-real-graphs').textContent;
+    const rawJson = document.getElementById('datas').textContent;
     if (!rawJson) return console.error("❌ JSON data not found")
     const data = JSON.parse(rawJson);
 

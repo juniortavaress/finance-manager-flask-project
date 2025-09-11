@@ -9,13 +9,14 @@ main {
 header {
   background-color: #26263e;
   color: white;
-  height: 8vh;
+  height: 9vh;
   width: 100vw;
   position: fixed;
   display: flex;
   justify-content: space-between;
   align-items: center;
   z-index: 6;
+  padding-right: 2vh;
 }
 
 #sidebar {

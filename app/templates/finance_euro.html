@@ -4,13 +4,12 @@
 
 {% block page %}
   <!-- JSON Data Injection -->
-  <script type="application/json" id="data-euro-pie-chart">{{ datas_graph_03|safe }} </script>
-  <script type="application/json" id="data-euro-incomes-expenses"> {{ datas_graphs_01_02|safe }} </script>
+  <script type="application/json" id="data-euro-pie-chart">{{ datas_category|safe }} </script>
+  <script type="application/json" id="data-euro-incomes-expenses"> {{ datas_income_expense|safe }} </script>
 
   <!-- JS Graph Scripts -->
   <script src="{{ url_for('static', filename='js/euro_expenses_analysis.js') }}"></script>
   <script src="{{ url_for('static', filename='js/euro_incomes_expenses.js') }}"></script>
-  <script src="{{ url_for('static', filename='js/euro_cumulative_analysis.js') }}"></script>
 
   <!-- Main Layout -->
   <div id="euro-finance-container">
@@ -25,8 +24,9 @@
           <div class="select-graph">
             <select id="yearSelect">
               <option value="all" selected>All</option>
-              <option value="2024">2024</option>
-              <option value="2025">2025</option>
+              {% for year in years %}
+                  <option value="{{ year }}">{{ year }}</option>
+              {% endfor %}
             </select>
             <select id="viewSelect">
               <option value="month">Monthly</option>
@@ -37,7 +37,7 @@
         <div class="graph-container" id="chart-income-expenses"> <canvas id="chart-euro-incomes-expenses"></canvas> </div>
       </div>
 
-      <!-- Cumulative Balance -->
+      <!-- Cumulative Balance
       <div class="finance-card" id="card-cumulative-balance">
         <div class="header-graph">
           <div class="title-graph">Cumulative Balance</div>
@@ -50,7 +50,7 @@
           </div>
         </div>
         <div class="graph-container" id="chart-cumulative"> <canvas id="chart-cumulative-euro"></canvas> </div>
-      </div>
+      </div> -->
     </div>
 
     <!-- Right Graphs -->
@@ -59,10 +59,10 @@
       <!-- Euro to BRL Exchange -->
       <div class="finance-card" id="card-euro-exchange">
         <div class="header-graph">
-          <div class="title-graph">Exchange Rate — {{ cotacao_euro_brl["data"] }}</div>
+          <div class="title-graph">Exchange Rate — {{ euro_brl["data"] }}</div>
         </div>
         <div id="exchange-rate-display">
-          <span>1 €</span> <span>=</span> <span>R$ {{ "%.2f"|format(cotacao_euro_brl["valor_eur_brl"]) }}</span>
+          <span>1 €</span> <span>=</span> <span>R$ {{ "%.2f"|format(euro_brl["valor_eur_brl"]) }}</span>
         </div>
       </div>
 
@@ -72,8 +72,8 @@
           <div class="title-graph">Monthly Expense Breakdown</div>
           <div class="select-graph">
             <select id="monthSelect">
-              {% for month in months_graph03 %}
-                <option value="{{ month }}">{{ month }}</option>
+              {% for month in months %}
+                <option value="{{ month }}" {% if loop.last %}selected{% endif %}>{{ month }}</option>
               {% endfor %}
             </select>
           </div>

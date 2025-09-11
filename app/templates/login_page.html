@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Login - My Dashboard{% endblock %}</title>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/login_page.css') }}">
+</head>
+
+<body>
+    <div class="login-container">
+        <!-- Welcome Section -->
+        <section class="welcome-section">
+            <div class="welcome-text">
+                {% if page == 'login' %}
+                    <h1>Welcome Back</h1>
+                {% else %}
+                    <h1>Welcome!!</h1>
+                {% endif %}
+
+                <p class="citation">
+                    "The most important thing you can do for yourself is to learn. Invest in yourself. No one can take that away from you. The more you learn, the more you earn."
+                    <br>— Warren Buffett
+                </p>
+            </div>
+        </section>
+
+        <!-- Login Form Section -->
+        {% if page == 'login' %}
+            <section class="login-section">
+                <h2>Sign In</h2>
+                <form id="login-form" autocomplete="off" method="POST" action="{{ url_for('main.login') }}">
+                    {{ form.csrf_token }}
+
+                    <div class="form-group">
+                        {{ form.email.label }} 
+                        {{ form.email(class="form-control") }}
+                        {% for error in form.email.errors %}
+                            <div class="invalid-feedback error-msg">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="form-group">
+                        {{ form.password.label }} 
+                        {{ form.password(class="form-control") }}
+                        {% for error in form.password.errors %}
+                            <div class="invalid-feedback error-msg">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="form-options">
+                        <div class="remember-me">
+                            <input type="checkbox" id="remember" name="remember">
+                            <label for="remember">Remember me</label>
+                        </div>
+                        <a href="#" class="forgot-password">Forgot password?</a>
+                    </div>
+
+                    <button type="submit" class="btn-submit">Sign In</button>
+                </form>
+
+                <p class="signup-link">
+                    Don't have an account? <a href="{{ url_for('main.create_account') }}" >Create one</a>
+                </p>
+            </section>
+
+        {% else %}
+            <section class="login-section">
+                <h2>Create Account</h2>
+                <form id="create-account-form" autocomplete="off" method="POST" action="{{ url_for('main.create_account') }}">
+                    {{ form.csrf_token }}
+                    <div class="form-group"> 
+                        {{ form.name.label }} 
+                        {{ form.name(class="form-control") }} 
+                    </div>
+
+                    <div class="form-group">
+                        {{ form.email.label }} 
+                        {{ form.email(class="form-control") }}
+                        {% for error in form.email.errors %}
+                            <div class="invalid-feedback error-msg">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="form-group">
+                        {{ form.password.label }} 
+                        {{ form.password(class="form-control") }}
+                        {% for error in form.password.errors %}
+                            <div class="invalid-feedback error-msg">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="form-group">
+                        {{ form.confirm_password.label }} 
+                        {{ form.confirm_password(class="form-control") }}
+                        {% for error in form.confirm_password.errors %}
+                            <div class="invalid-feedback error-msg">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <button type="submit" class="btn-submit">Create Account</button>
+                </form>
+
+                <p class="signup-link">
+                    Already have an account? <a href="{{ url_for('main.login') }}" >Sing In</a>
+                </p>
+            </section>
+        {% endif %}
+    </div>
+</body>
+</html>
+
+<script>
+    setTimeout(function() {
+        document.querySelectorAll('.error-msg').forEach(function(el) {
+            el.style.transition = "opacity 0.5s ease";
+            el.style.opacity = "0";
+            setTimeout(() => el.remove(), 500);
+        });
+
+        document.getElementById("create-account-form").reset();
+
+    }, 5000);
+</script>

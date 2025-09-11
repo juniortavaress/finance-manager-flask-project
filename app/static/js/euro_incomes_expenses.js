@@ -12,57 +12,91 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let incomeChart;
 
-    function somaArray(arr) {
-      return arr.reduce((a, b) => a + b, 0);
-    }
+    const monthNames = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+    const somaArray = arr => arr.reduce((a, b) => a + b, 0);
+    const monthName = monthStr => monthNames[parseInt(monthStr.split('/')[0], 10) - 1];
 
+    console.log(datas)
+    function getMonthlyData(yearData) {
+      return Object.keys(yearData).sort().map(m => {
+        return {
+          label: monthName(m),
+          income: yearData[m].Income || 0,
+          expense: yearData[m].Expense || 0,
+          // balance: yearData[m].Balance || 0,
+          cumulative: yearData[m].Cumulative_Balance || 0
+        };
+      });
+    };
+
+    function calculateYearTotals(yearData) {
+      const totalIncome = somaArray(Object.values(yearData).map(v => v.Income || 0));
+      const totalExpense = somaArray(Object.values(yearData).map(v => v.Expense || 0));
+      const totalBalance = somaArray(Object.values(yearData).map(v => v.Balance || 0));
+      const cumulative = Math.max(totalIncome - totalExpense, 0); // mantém >= 0
+      return { totalIncome, totalExpense, totalBalance, cumulative };
+    };
+    
     function drawIncomeGraph(year_selection, view) {
       let labels = [];
-      let entrada = [];
-      let saida = [];
-      let saldo = [];
+      let income = [];
+      let expense = [];
+      let cumulative_balance = [];
 
       // For all years
       if (year_selection === 'all') {
         if (view === 'month') {
           for (const year in datas) {
-            datas[year].labels.forEach((mes, i) => {
-              labels.push(`${mes} ${year}`);
-              entrada.push(datas[year].entrada[i]); 
-              saida.push(datas[year].saida[i]);     
-              saldo.push(datas[year].saldo[i]);    
+            const yearData = datas[year];
+            const monthlyData = getMonthlyData(yearData)
+
+            monthlyData.forEach(m => {
+              labels.push(`${m.label} ${year}`); 
+              income.push(m.income);
+              expense.push(m.expense);
+              cumulative_balance.push(m.cumulative);
             });
           }
-        } 
-        
-        else {
-          labels = Object.keys(datas); // (ex: ['2023', '2024'])
-          entrada = labels.map(year_selection => somaArray(datas[year_selection].entrada));
-          saida = labels.map(year_selection => somaArray(datas[year_selection].saida));
-          saldo = labels.map(year_selection => somaArray(datas[year_selection].saldo));
-        }
-      }
+        } else {
+            let runningTotal = 0;
+            const years = Object.keys(datas).sort();
+
+            years.forEach(year => {
+              const yearData = datas[year];
+              labels.push(year);
+
+              const totals = calculateYearTotals(yearData);
+              income.push(totals.totalIncome);
+              expense.push(totals.totalExpense);
+
+              runningTotal += totals.totalBalance; // acumula os anos
+              cumulative_balance.push(runningTotal);
+            });
+        }}
 
       // For a specific selected year
-      else {
+      else { // year específico
         const yearData = datas[year_selection];
-        if (!yearData) return; 
+        if (!yearData) return;
 
         if (view === 'month') {
-          labels = yearData.labels;
-          entrada = yearData.entrada;
-          saida = yearData.saida;
-          saldo = yearData.saldo;
-        } 
-        
-        else {
-          labels = [year_selection]; 
-          entrada = [somaArray(yearData.entrada)];
-          saida = [somaArray(yearData.saida)];
-          saldo = [somaArray(yearData.saldo)];
+            const monthlyData = getMonthlyData(yearData);
+            monthlyData.forEach(m => {
+                labels.push(`${m.label} ${year_selection}`);
+                income.push(m.income);
+                expense.push(m.expense);
+                cumulative_balance.push(m.cumulative);
+            });
+        } else { 
+            const totals = calculateYearTotals(yearData);
+            labels = [year_selection];
+            income = [totals.totalIncome];
+            expense = [totals.totalExpense];
+            cumulative_balance = [totals.cumulative];
         }
       }
 
+      // console.log(cumalutive_balance)
       if (incomeChart) incomeChart.destroy();
 
       incomeChart = new Chart(ctx, {
@@ -72,21 +106,21 @@ document.addEventListener('DOMContentLoaded', () => {
             {
               type: 'bar', 
               label: 'Income',
-              data: entrada,
+              data: income,
               backgroundColor: 'rgba(75, 192, 192, 0.7)',
               yAxisID: 'y'
             },
             {
               type: 'bar', 
               label: 'Expenses',
-              data: saida,
+              data: expense,
               backgroundColor: 'rgba(255, 99, 132, 0.7)', 
               yAxisID: 'y'
             },
             {
               type: 'line',
-              label: 'Balance',
-              data: saldo,
+              label: 'Cumulative',
+              data: cumulative_balance,
               borderColor: 'blue', 
               backgroundColor: 'rgba(0,0,255,0.1)', 
               fill: false, 

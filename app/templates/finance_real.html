@@ -6,6 +6,7 @@
     <!-- Graph Data Injection -->
     <script type="application/json" id="data-currency-graph"> {{ datas_currency_euro_real|safe }} </script>
     <script type="application/json" id="data-finance-real-graphs"> {{ datas_graphs_page_real|safe }} </script>
+    <script type="application/json" id="datas"> {{ datas|safe }} </script>
 
     <!-- JS for Graph Rendering -->
     <script src="{{ url_for('static', filename='js/real_currency_graph.js') }}"></script>
@@ -24,8 +25,9 @@
                     <div class="select-graph">
                         <select id="yearSelectCumulative">
                             <option value="all" selected>All</option>
-                            <option value="2024">2024</option>
-                            <option value="2025">2025</option>
+                            {% for year in years_available %}
+                                <option value="{{ year }}">{{ year }}</option>
+                            {% endfor %}
                         </select>
                     </div>
                 </div>
@@ -52,8 +54,9 @@
                     <div class="select-graph">
                         <select id="yearSelect">
                         <option value="all" selected>All</option>
-                        <option value="2024">2024</option>
-                        <option value="2025">2025</option>
+                        {% for year in years_available %}
+                            <option value="{{ year }}" {% if loop.last %}selected{% endif %}>{{ year }}</option>
+                        {% endfor %}
                         </select>
                         <select id="viewSelect">
                         <option value="month">Monthly</option>

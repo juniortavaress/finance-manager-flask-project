@@ -10,6 +10,10 @@
     <div class="header-right">
         <div class="icon-button" role="button"><span class="material-symbols-outlined">notifications</span></div>
         <div class="icon-button" role="button"><span class="material-symbols-outlined">help</span></div>
-        <div class="icon-button" role="button"><span class="material-symbols-outlined">account_circle</span></div>
+        
+    <a href="{{ url_for('main.logout') }}" class="icon-button" role="button">
+        <span class="material-symbols-outlined">account_circle</span>
+    </a>
+
     </div>
 </header>
