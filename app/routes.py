@@ -1,7 +1,7 @@
 
 from flask import Blueprint, request, render_template, redirect, url_for
 import json
-from app.get_datas import GetDatas
+from app.get_information.get_datas import GetDatas
 from datetime import datetime
 from app import bcrypt, database as db
 from app.models import User, Transaction, Contribution, EuroIncomesAndExpenses, RealIncomesAndExpenses
@@ -9,7 +9,6 @@ from flask_login import login_user, logout_user, login_required, current_user
 from .forms import LoginForm, RegistrationForm
 
 main = Blueprint('main', __name__)
-
 
 # Login and Create Account Routes
 @main.route('/', methods=['GET', 'POST'])
@@ -28,6 +27,7 @@ def login():
             form.email.errors.append("Email not registered")
     return render_template("login_page.html", page="login", form=form)
 
+
 @main.route("/create_account", methods=["GET", "POST"], endpoint="create_account")
 def create_account():
     form = RegistrationForm()
@@ -45,6 +45,7 @@ def create_account():
             form.password.data = ""
             form.confirm_password.data = ""
         return render_template("login_page.html", page="create_account", form=form)
+
 
 @main.route("/logout")
 @login_required
@@ -137,8 +138,6 @@ def add_transaction():
         except Exception as e:
             db.session.rollback()
             print(f"Erro ao salvar no banco: {e}")
-
-
     return redirect(url_for('main.user_page', user_id=current_user.id))
 
 
@@ -151,13 +150,9 @@ def delete_transaction(transaction_id):
     return redirect(url_for('main.user_page', user_id=current_user.id))
 
 
-
-
-
 @main.route('/finance-euro')
 @login_required
 def finance_euro():    
-    user_id = current_user.id
     euro_brl, _ = GetDatas.get_euro_prices()
     months_available, datas_category = GetDatas.load_datas_by_category(current_user.id)
     years_available, geral_datas = GetDatas.load_datas_incomes_and_expenses(EuroIncomesAndExpenses, current_user.id)
@@ -169,12 +164,8 @@ def finance_euro():
 def finance_real():
     _, datas_real_euro = GetDatas.get_euro_prices()
     years_available, datas_incomes_and_expenses = GetDatas.load_datas_incomes_and_expenses(RealIncomesAndExpenses, current_user.id)
-    
-
     datas = GetDatas.load_datas_page_real2()
     datas = json.dumps(datas)
-    
-
     return render_template('finance_real.html' , datas=datas, datas_graphs_page_real=datas_incomes_and_expenses, datas_currency_euro_real=datas_real_euro, years_available=years_available, active_page='finance_real')
 
 

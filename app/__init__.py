@@ -24,10 +24,11 @@ def create_app():
 
     # Para criar a db pela primeira vez
     from app.models import User, Assets
-    from app.get_datas import GetDatas
+    from app.get_information.get_companies_prices import CompanyPrices
+    
     with app.app_context():
         assets = Assets.query.distinct(Assets.company).all()
-        GetDatas.run_api_company_history_prices(assets)
+        CompanyPrices.run_api_company_history_prices(assets)
 
 
     # with app.app_context():
