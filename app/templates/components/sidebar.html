@@ -1,35 +1,19 @@
 <div class="sidebar-menu">
-    <a href="{{ url_for('main.user_page', user_id=current_user.id) }}" class="sidebar-button {% if active_page == 'home' %}active{% endif %}" role="button">
+    <a href="{{ url_for('user.user_homepage', user_id=current_user.id) }}" class="sidebar-button {% if active_page == 'home' %}active{% endif %}" role="button">
         <span class="material-symbols-outlined">home</span>
     </a>
-    <a href="{{ url_for('main.finance_real') }}" class="sidebar-button {% if active_page == 'finance_real' %}active{% endif %}" role="button">
+    <a href="{{ url_for('finance.finance', currency='real') }}" class="sidebar-button {% if active_page == 'finance_real' %}active{% endif %}" role="button">
         <span class="material-symbols-outlined">paid</span>
     </a>
-    <a href="{{ url_for('main.finance_euro') }}" class="sidebar-button {% if active_page == 'finance_euro' %}active{% endif %}" role="button">
+    <a href="{{ url_for('finance.finance', currency='euro') }}" class="sidebar-button {% if active_page == 'finance_euro' %}active{% endif %}" role="button">
         <span class="material-symbols-outlined">euro</span>
     </a>
-    <a href="{{ url_for('main.investments') }}" class="sidebar-button {% if active_page == 'investments' %}active{% endif %}" role="button">
+    <a href="{{ url_for('finance.investments') }}" class="sidebar-button {% if active_page == 'investments' %}active{% endif %}" role="button">
         <span class="material-symbols-outlined">finance_mode</span>
     </a>
-    <a href="{{ url_for('main.tables') }}" class="sidebar-button {% if active_page == 'tables' %}active{% endif %}" role="button">
+    <a class="sidebar-button {% if active_page == 'tables' %}active{% endif %}" role="button">
         <span class="material-symbols-outlined">view_list</span>
     </a>
 </div>
 
 
-
-<div class="sidebar-settings">
-    <div class="icon-button" role="button"><span class="material-symbols-outlined">build_circle</span></div>
-    <div class="icon-button" role="button"><span class="material-symbols-outlined">settings</span></div>
-</div>
-
-
-
-<!-- 
-
-
-
-<div class="sidebar-settings">
-    <div class="icon-button" role="button"><span class="material-symbols-outlined">build_circle</span></div>
-    <div class="icon-button" role="button"><span class="material-symbols-outlined">settings</span></div>
-</div> -->

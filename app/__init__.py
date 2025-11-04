@@ -1,44 +1,51 @@
+import logging
 from flask import Flask
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
 from flask_sqlalchemy import SQLAlchemy
 
-
 database = SQLAlchemy()
 bcrypt = Bcrypt()
 login_manager = LoginManager() 
 
-
 def create_app():
     app = Flask(__name__)
+
+    # Load configuration
     app.config.from_object('app.config.Config')
 
+    # Initialize extensions
     database.init_app(app)
     bcrypt.init_app(app)
+    login_manager.init_app(app)
+    login_manager.login_view = 'auth.login'  
 
-    login_manager.login_view = 'main.login'
-    login_manager.init_app(app)   
+    # Register blueprints
+    from app.routes import register_blueprints
+    register_blueprints(app)
     
-    from app.routes import main
-    app.register_blueprint(main)
+    # Configuração básica de logging
+    # logging.getLogger('werkzeug').setLevel(logging.ERROR)
+    # logging.getLogger('flask.app').setLevel(logging.ERROR)
 
-    # Para criar a db pela primeira vez
-    from app.models import User, Assets
-    from app.get_information.get_companies_prices import CompanyPrices
-    
+    # Optional: database setup or initial data
     with app.app_context():
-        assets = Assets.query.distinct(Assets.company).all()
-        CompanyPrices.run_api_company_history_prices(assets)
-
-
-    # with app.app_context():
-    #     database.create_all()
-    #     user = User.query.filter_by(email='test@gmail.com').first()
-    #     if not user:
-    #         user = User(name='Junior Tavares', email='test@gmail.com')
-    #         user.set_password('testflask')
-    #         database.session.add(user)
-    #         database.session.commit()
+        database.create_all()
+        seed_initial_data()
 
     return app
 
+
+# Optional: initial data seeding
+def seed_initial_data():
+    from app.models import User, Assets
+    from app.finance_tools import CompanyPricesFetcher
+
+    # CompanyPricesFetcher.run_api_company_history_prices(Assets.query.all())
+
+    user = User.query.filter_by(email='test@gmail.com').first()
+    if not user:
+        new_user = User(name='Junior Tavares', email='test@gmail.com')
+        new_user.set_password('testflask')
+        database.session.add(new_user)
+        database.session.commit()

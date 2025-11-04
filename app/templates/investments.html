@@ -2,8 +2,25 @@
 
 {% block title %}Investments{% endblock %}
 
-{% block page %}
-    <div class="content-view" id="investments"> </div>
-    <h1>investments</h1>
+{% block navbar %}{% include "components/navbar_invest.html" %}{% endblock %}
 
+{% block page %}
+    <script type="application/json" id="datas"> {{ datas|safe }} </script>
+    
+    <div class="content-view" id="content-investments"> 
+        {% if invest_type == 'home_invest' %}
+
+            <script type="application/json" id="assets">{{ assets | safe }}</script>
+            <script type="module" src="{{ url_for('static', filename='js/graph-pie-wallet.js') }}"></script>
+            <script type="module" src="{{ url_for('static', filename='js/graph-cumulative-investments.js') }}"></script>
+            <div id="home-invest">{% include "investments/home_invest.html" %}</div>
+
+        {% else %}
+            <script type="application/json" id="company-history">{{ selected_company|tojson }}</script>
+            <script type="module" src="{{ url_for('static', filename='js/graph-companies-data.js') }}"></script>
+            {% include "investments/broker.html" %}
+        
+        {% endif %}
+    </div>
+    
 {% endblock %}

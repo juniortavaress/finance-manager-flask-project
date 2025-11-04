@@ -26,8 +26,8 @@
                 </div>
                 <div class="summary-content">
                     {% if section == "other" %}
-                    <div class="summary-data"> R$ {{ values["investment_contribuition"] }} </div>
-                    <div class="summary-data"> R$ 9.523,32 </div>
+                    <div class="summary-data"> R$ {{  values["investment_profit"]}} </div>
+                    <div class="summary-data"> R$  {{ values["investment_current_value"] }} </div>
                     {% elif section == "incomes" %}
                     <div class="summary-data"> € {{ values["euro_income"] }} </div>
                     <div class="summary-data"> R$ {{ values["real_income"] }} </div>
@@ -46,7 +46,7 @@
 
 
         <section id="add-transaction">
-            <form id="transaction-form" method="POST" action="{{ url_for('main.add_transaction') }}">
+            <form id="transaction-form" method="POST" action="{{ url_for('transaction.add_transaction') }}">
 
                 <div class="form-group">
                 <label for="date">Date</label>
@@ -121,7 +121,7 @@
                     <td>
                         <button class="edit-btn">Edit</button>
 
-                        <form method="POST" action="{{ url_for('main.delete_transaction', transaction_id=t.id) }}" style="display: inline;">
+                        <form method="POST" action="{{ url_for('transaction.delete_transaction', transaction_id=t.id) }}" style="display: inline;">
                             <button class="delete-btn">Delete</button>
                         </form>
                         

@@ -1,0 +1,6 @@
+<ul class="nav-links">
+    <li><a href="{{ url_for('finance.investments', user_id=current_user.id) }}" class="nav-item {% if invest_type == 'home_invest' %}active{% endif %}">Home</a></li>
+    <li><a href="{{ url_for('finance.nuinvest') }}" class="nav-item {% if invest_type == 'nu_invest' %}active{% endif %}">Nu Invest</a></li>
+    <li><a href="{{ url_for('finance.xpinvest') }}" class="nav-item {% if invest_type == 'xp_invest' %}active{% endif %}">XP Invest</a></li>
+    <li><a href="{{ url_for('finance.nomad') }}" class="nav-item {% if invest_type == 'nomad' %}active{% endif %}">Nomad</a></li>
+</ul>

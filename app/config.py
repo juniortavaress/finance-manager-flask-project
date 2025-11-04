@@ -8,3 +8,4 @@ class Config:
     UPLOAD_FOLDER = "static/images"
     ENV = "development"
     DEBUG = True
+

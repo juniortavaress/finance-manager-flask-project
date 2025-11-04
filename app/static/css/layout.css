@@ -1,27 +1,27 @@
 main {
-  display: flex;
-  height: 100%;
-  padding-top: 8vh;
-  background-color: #eeeff6;
-  flex: 1;
+    display: flex;
+    flex: 1 0 auto; /* permite crescer conforme o conteúdo */
+    background-color: #eeeff6;
+    padding-bottom: 0px;
+    min-width: 92%;
 }
 
 header {
+  height: 8%;
   background-color: #26263e;
   color: white;
-  height: 9vh;
-  width: 100vw;
-  position: fixed;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  z-index: 6;
-  padding-right: 2vh;
+  justify-content: space-between;
+  padding: 0 2vh;
 }
+
+
 
 #sidebar {
   background-color: #373752;
-  width: 60px;
+  width: 4%;
+  height: 100%;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -30,26 +30,27 @@ header {
 #main-content {
   display: flex;
   flex-direction: column;
-  width: 100%;
+  width: 96%;
   height: 100%;
 }
 
 #top-nav {
-  height: 9vh;
+  height: 9%;
   width: 100%;
   background-color: white;
   border-bottom: 2px solid #dcdadb;
   display: flex;
   align-items: flex-end;
   justify-content: center;
+  max-height: 70px;
+  
 }
 
 #page-content {
   display: flex;
-  gap: 2vh;
-  padding: 2vh;
-  height: 100%;
+  gap: 10%;
+  padding: 1%;
   width: 100%;
-   height: 83vh;
+  height: 91%;
 }
 

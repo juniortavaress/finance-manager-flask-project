@@ -1,0 +1,57 @@
+<section id="investment-summary">
+    {% for section in ["NuInvest", "XP", "Nomad"] %}
+        <article class="investment-card">
+            <div class="investment-card-header">
+                <h2 class="investment-card-title">
+                    {% if section == "NuInvest" %}Nu Investments
+                    {% elif section == "XP" %}XP Investments
+                    {% elif section == "Nomad" %}Nomad
+                    {% endif %}
+                </h2>
+            </div>
+
+            <div class="investment-content-grid">
+                {% set items = [
+                    {"label": "Aportes", "icon": "savings", "value": formatted_summary.get(section, {}).get("deposit", 0)},
+                    {"label": "Investido", "icon": "trending_up", "value": formatted_summary.get(section, {}).get("current_invested", 0)},
+                    {"label": "Caixa", "icon": "account_balance_wallet", "value": formatted_summary.get(section, {}).get("cash", 0)},
+                    {"label": "Lucro", "icon": "show_chart", "value": formatted_summary.get(section, {}).get("profit", 0)}
+                ] %}
+
+                {% for item in items %}
+                <div class="investment-grid-item">
+                    <span class="material-symbols-outlined investment-icon">{{ item.icon }}</span>
+                    <div class="investment-info">
+                        <span class="investment-label">{{ item.label }}</span>
+                        <span class="investment-value">{{ item.value }}</span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </article>
+    {% endfor %}
+</section>
+
+
+<section id="investment-chart">
+
+
+    <div id="chart01" class="graph">
+        <div class="header-graph">
+            <div class="title-graph">Wallet</div>
+        </div>
+        <div class="chart-container">
+            <canvas id="wallet"></canvas>
+        </div>
+    </div>
+
+    <div id="chart02" class="graph">
+        <div class="header-graph">
+            <div class="title-graph">Distribuição por tipo de investimento</div>
+        </div>
+        <div class="chart-container">
+            <canvas id="investmentChartHome"></canvas>
+        </div>
+    </div>
+
+</section>

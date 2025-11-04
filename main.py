@@ -1,4 +1,7 @@
+# import os 
+# os.chdir(r'finance-manager-flask-project')
 from app import create_app
+
 
 app = create_app()
 

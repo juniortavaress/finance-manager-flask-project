@@ -11,27 +11,34 @@
 
     <!-- Stylesheets -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/investments.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/box_flutuante.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/layout.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/finance_euro.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/finance_real.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/homepage.css') }}">
+
+
 </head>
 
 
+
 <body>
+    <header>
     {% include "components/header.html" %}
-    
+    </header>
     <main>
         <aside id="sidebar">{% include "components/sidebar.html" %}</aside>
 
         <section id="main-content"> 
-            <nav id="top-nav">{% include "components/navbar.html" %}</nav>
+            <nav id="top-nav">{% block navbar %}{% include "components/navbar.html" %}{% endblock %}</nav>
             <div id="page-content">{% block page %}{% endblock %}</div>
         </section>
     </main>
     
     <!-- <footer><p>© 2025 Jucélio Tavares Junior. Todos os direitos reservados.</p></footer> -->    
+    <script src="{{ url_for('static', filename='js/utils/input-modal.js') }}"></script>
 </body>
 
 
