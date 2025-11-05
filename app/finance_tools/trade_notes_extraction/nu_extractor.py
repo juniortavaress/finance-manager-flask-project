@@ -28,15 +28,15 @@ class NuExtractor:
             else:
                 date, total_price, negotiation_number = NuExtractor._extract_data_from_statement(text)
 
-                # exists = PersonalTradeStatement.query.filter_by(user_id=user_id, statement_number=negotiation_number).first()
-                # if exists:
-                #     print(f"Nota {negotiation_number} já registrada.")
-                #     return None
+                exists = PersonalTradeStatement.query.filter_by(user_id=user_id, statement_number=negotiation_number).first()
+                if exists:
+                    print(f"Nota {negotiation_number} já registrada.")
+                    return None
                     
-                # cleaned_lines = NuExtractor._clean_content(text)
-                # df = NuExtractor._create_df_records(cleaned_lines, date, negotiation_number, total_price)
-                # NuExtractor._save_to_database(df, user_id)
-                # return df['Ticker'].unique()
+                cleaned_lines = NuExtractor._clean_content(text)
+                df = NuExtractor._create_df_records(cleaned_lines, date, negotiation_number, total_price)
+                NuExtractor._save_to_database(df, user_id)
+                return df['Ticker'].unique()
         
         except Exception as e:
             print(f"Could not extract data from file: {filename}")

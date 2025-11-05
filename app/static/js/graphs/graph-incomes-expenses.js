@@ -68,10 +68,11 @@ document.addEventListener('DOMContentLoaded', () => {
         options: {
           responsive: true, 
           maintainAspectRatio: false, 
-          scales: {x: {grid: {display: false}}, y: {beginAtZero: true, title: {display: true, text: chartAxis }}},
+          scales: {
+            x: {grid: {display: false}}, 
+            y: {beginAtZero: true, title: {display: true, text: chartAxis }}},
           plugins: {
-            legend: {display: true, position: 'bottom', 
-            labels: {usePointStyle: true,  boxWidth: 15, boxHeight: 5, padding: 20}}
+            legend: {display: true, position: 'bottom', labels: {usePointStyle: true,  boxWidth: 15, boxHeight: 5, padding: 20}}
           },
         }
       });

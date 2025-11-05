@@ -34,7 +34,7 @@ class UserInvestmentsFetcher():
         for desc, value, date_ in results:
             desc_lower = desc.lower()
 
-            if "nuinvest" in desc_lower:
+            if "nu" in desc_lower:
                 key = "NuInvest"
             elif "xp" in desc_lower:
                 key = "XP"
@@ -206,6 +206,7 @@ class UserInvestmentsFetcher():
         """Fetch, process, and return historical investment data per brokerage."""
         deposits = defaultdict(lambda: {"date": [], "deposit": []})
         summary_by_brokerage = UserInvestmentsFetcher.get_historic_deposits(user_id, deposits)
+
         summary_by_brokerage = UserInvestmentsFetcher.get_invested_values(user_id, summary_by_brokerage)
         last_datas = UserInvestmentsFetcher.get_current_values(summary_by_brokerage)
         return last_datas, summary_by_brokerage

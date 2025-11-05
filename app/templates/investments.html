@@ -11,8 +11,8 @@
         {% if invest_type == 'home_invest' %}
 
             <script type="application/json" id="assets">{{ assets | safe }}</script>
-            <script type="module" src="{{ url_for('static', filename='js/graph-pie-wallet.js') }}"></script>
-            <script type="module" src="{{ url_for('static', filename='js/graph-cumulative-investments.js') }}"></script>
+            <script type="module" src="{{ url_for('static', filename='js/graphs/graph-pie-wallet.js') }}"></script>
+            <script type="module" src="{{ url_for('static', filename='js/graphs/graph-cumulative-investments.js') }}"></script>
             <div id="home-invest">{% include "investments/home_invest.html" %}</div>
 
         {% else %}

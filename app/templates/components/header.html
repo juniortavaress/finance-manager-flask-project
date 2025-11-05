@@ -1,26 +1,27 @@
-
-    <div class="header-left">
-        <div class="logo-container">
-            <img src="{{ url_for('static', filename='images/logo_png.png') }}" alt="logo">
-        </div>
-        <div id="add-btn" class="icon-button" role="button"><span class="material-symbols-outlined">add</span></div>
-        <div class="icon-button" role="button"><span class="material-symbols-outlined">search</span></div>
+<div class="header-left">
+    <div class="logo-container">
+        <img src="{{ url_for('static', filename='images/logo_png.png') }}" alt="logo">
     </div>
+    <div id="add-btn" class="icon-button" role="button">
+        <span class="material-symbols-outlined">add</span>
+    </div>
+    <div class="icon-button" role="button">
+        <span class="material-symbols-outlined">search</span>
+    </div>
+</div>
 
-    <div class="header-right">
-        <div class="icon-button" role="button"><span class="material-symbols-outlined">notifications</span></div>
-        <div class="icon-button" role="button"><span class="material-symbols-outlined">help</span></div>
-        
+<div class="header-right">
+    <div class="icon-button" role="button">
+        <span class="material-symbols-outlined">notifications</span>
+    </div>
+    <div class="icon-button" role="button">
+        <span class="material-symbols-outlined">help</span>
+    </div>
+    
     <a href="{{ url_for('auth.logout') }}" class="icon-button" role="button">
         <span class="material-symbols-outlined">account_circle</span>
     </a>
-
-    </div>
-
-    
-
-
-
+</div>
 
 <!-- Upload Modal -->
 <div id="uploadModal" class="modal">
@@ -41,10 +42,16 @@
       </select>
     </div>
 
-    <!-- Formulário de upload (para trade_statements e income_database) -->
-    <form id="uploadForm" method="POST" enctype="multipart/form-data">
+    <!-- Formulário de upload -->
+    <form id="uploadForm" method="POST" enctype="multipart/form-data"
+          action="{{ url_for('upload.upload_notes') }}"
+          data-upload-notes-url="{{ url_for('upload.upload_notes') }}"
+          data-upload-incomes-url="{{ url_for('upload.upload_incomes') }}"
+          data-manual-entry-url="{{ url_for('upload.manual_entry') }}">
+      
       <input type="hidden" name="data_type" id="dataType" value="trade_statements">
 
+      <!-- Seção de upload de arquivos -->
       <div id="folderSelection" class="form-section">
         <label class="file-input">
           <input type="file" name="files" webkitdirectory directory multiple hidden>
@@ -52,111 +59,72 @@
         </label>
       </div>
 
-      <!-- Formulário manual -->
-<!-- Formulário manual -->
-  <div id="manualSection" class="form-section" style="display: none;">
-    <div class="manual-form-grid">
-      <div class="form-group">
-        <label for="date">Data</label>
-        <input type="date" name="date" id="date" required>
+      <!-- Seção manual -->
+      <div id="manualSection" class="form-section" style="display: none;">
+        <div class="manual-form-grid">
+          <div class="form-group">
+            <label for="date">Data</label>
+            <input type="date" name="date" id="date">
+          </div>
+
+          <div class="form-group">
+            <label for="brokerage">Corretora</label>
+            <select name="brokerage" id="brokerage">
+              <option value="Nomad">Nomad</option>
+              <option value="NuInvest">NuInvest</option>
+              <option value="XPInvest">XPInvest</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="statement_number">Número da Nota</label>
+            <input type="text" name="statement_number" id="statement_number" placeholder="Opcional">
+          </div>
+
+          <div class="form-group">
+            <label for="investment_type">Tipo de Investimento</label>
+            <select name="investment_type" id="investment_type">
+              <option value="foreign stock (USD)">Internacional</option>
+              <option value="stock">Ações</option>
+              <option value="fixed_income">Renda Fixa</option>
+              <option value="real_state">FII`s</option>
+              <option value="cripto">Cripto</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="operation">Operação</label>
+            <select name="operation" id="operation">
+              <option value="B">Compra</option>
+              <option value="S">Venda</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="ticker">Ticker</label>
+            <input type="text" name="ticker" id="ticker" placeholder="Ex: PETR4, AAPL, BTC">
+          </div>
+
+          <div class="form-group">
+            <label for="quantity">Quantidade</label>
+            <input type="number" name="quantity" id="quantity" step="any">
+          </div>
+
+          <div class="form-group">
+            <label for="unit_price">Preço Unitário (R$)</label>
+            <input type="number" name="unit_price" id="unit_price" step="any">
+          </div>
+
+          <div class="form-group">
+            <label for="final_value">Valor Total (R$)</label>
+            <input type="number" name="final_value" id="final_value" step="any">
+          </div>
+        </div>
       </div>
 
-
-      <div class="form-group">
-        <label for="brokerage">Corretora</label>
-        <select name="brokerage" id="brokerage" required>
-          <option value="Nomad">Nomad</option>
-          <option value="NuInvest">NuInvest</option>
-          <option value="XPInvest">XPInvest</option>
-        </select>
-      </div>
-
-        <div class="form-group">
-        <label for="statement_number">Número da Nota</label>
-        <input type="text" name="statement_number" id="statement_number" placeholder="Opcional">
-      </div>
-
-
-      <div class="form-group">
-        <label for="investment_type">Tipo de Investimento</label>
-        <select name="investment_type" id="investment_type" required>
-          <option value="foreign stock (USD)">Internacional</option>
-          <option value="stock">Ações</option>
-          <option value="fixed_income">Renda Fixa</option>
-          <option value="real_state">FII`s</option>
-          <option value="cripto">Cripto</option>
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label for="operation">Operação</label>
-        <select name="operation" id="operation" required>
-          <option value="B">Compra</option>
-          <option value="S">Venda</option>
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label for="ticker">Ticker</label>
-        <input type="text" name="ticker" id="ticker" placeholder="Ex: PETR4, AAPL, BTC" required>
-      </div>
-
-      <div class="form-group">
-        <label for="quantity">Quantidade</label>
-        <input type="number" name="quantity" id="quantity" step="any" required>
-      </div>
-
-      <div class="form-group">
-        <label for="unit_price">Preço Unitário (R$)</label>
-        <input type="number" name="unit_price" id="unit_price" step="any" required>
-      </div>
-
-      <div class="form-group">
-        <label for="final_value">Valor Total (R$)</label>
-        <input type="number" name="final_value" id="final_value" step="any" required>
-      </div>
-
-    </div>
-  </div>
       <div style="width: 100%; text-align: center; margin-top: 20px;">
-  <button type="submit" class="btn-ok">Confirmar</button>
-</div>
+        <button type="submit" class="btn-ok">Confirmar</button>
+      </div>
     </form>
   </div>
 </div>
-
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-  const modal = document.getElementById("uploadModal");
-  const addBtn = document.getElementById("add-btn");
-  const closeBtn = document.querySelector(".close");
-  const select = document.getElementById("dataTypeSelect");
-  const uploadForm = document.getElementById("uploadForm");
-  const folderSection = document.getElementById("folderSelection");
-  const manualSection = document.getElementById("manualSection");
-
-  addBtn.onclick = () => modal.style.display = "block";
-  closeBtn.onclick = () => modal.style.display = "none";
-  window.onclick = (e) => { if (e.target == modal) modal.style.display = "none"; };
-
-  // muda tipo de ação dinamicamente
-  select.addEventListener("change", (e) => {
-    const value = e.target.value;
-    document.getElementById("dataType").value = value;
-
-    if (value === "manual_entry") {
-      uploadForm.action = "{{ url_for('upload.manual_entry') }}";
-      folderSection.style.display = "none";
-      manualSection.style.display = "block";
-    } else if (value === "income_database") {
-      uploadForm.action = "{{ url_for('upload.upload_incomes') }}";
-      folderSection.style.display = "block";
-      manualSection.style.display = "none";
-    } else {
-      uploadForm.action = "{{ url_for('upload.upload_notes') }}";
-      folderSection.style.display = "block";
-      manualSection.style.display = "none";
-    }
-  });
-});
-</script>

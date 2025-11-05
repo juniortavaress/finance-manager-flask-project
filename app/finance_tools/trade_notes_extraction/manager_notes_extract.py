@@ -35,7 +35,7 @@ class ManagerNotesExtractor:
         """
         unique_tickers = []
         broker = ManagerNotesExtractor._extract_broker_from_statement(file)
-
+        
         if broker == "Nu Invest":
             unique_tickers = NuExtractor.get_info_from_nu(filename, file, user_id)
             

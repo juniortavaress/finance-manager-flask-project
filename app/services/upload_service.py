@@ -8,12 +8,12 @@ def process_trade_statements(files, user_id):
         if extracted is not None:
             tickers.extend(extracted)
 
-    unique_tickers = list(set(tickers))
-    print(unique_tickers)
-    if not unique_tickers:
-        return
+    # unique_tickers = list(set(tickers))
+    # print(unique_tickers)
+    # if not unique_tickers:
+    #     return
 
-    UpdateDatabases.atualize_assets_db(unique_tickers, user_id)
+    # UpdateDatabases.atualize_assets_db(unique_tickers, user_id)
     assets = Assets.query.distinct(Assets.company).all()
     updated = CompanyPricesFetcher.run_api_company_history_prices(assets)
     print(updated)

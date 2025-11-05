@@ -48,7 +48,7 @@ class UpdateDatabases:
                 other_trades_by_ticker.setdefault(trade.ticker, []).append(trade)
 
         UpdateDatabases._atualize_fixed_income_trades_by_ticker(user_id, fixed_income_trades_by_ticker)
-        # UpdateDatabases._atualize_other_trades_by_ticker(user_id, other_trades_by_ticker)
+        UpdateDatabases._atualize_other_trades_by_ticker(user_id, other_trades_by_ticker)
 
 
     def _atualize_fixed_income_trades_by_ticker(user_id, trades_by_ticker):

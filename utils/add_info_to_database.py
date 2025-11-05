@@ -133,26 +133,26 @@ def add_dividend(user_id=1):
 
 
 def delete():
-    # deleted = (
-    #     db.session.query(UserTradeSummary)
-    #     .filter(
-    #         UserTradeSummary.user_id == 1,
-    #         UserTradeSummary.brokerage.in_(["Nomad", "XP", "NuInvest"])
-    #     )
-    #     .delete(synchronize_session=False)
-    # )
-
-    # db.session.commit()
-    # print(f"{deleted} registros deletados com sucesso.")
-    #    Apaga os registros da PersonalTradeStatement
-
-    deleted_personal = (
-        db.session.query(PersonalTradeStatement)
+    deleted = (
+        db.session.query(UserTradeSummary)
         .filter(
-            PersonalTradeStatement.user_id == 1,
-            PersonalTradeStatement.investment_type == "Fixed Income")
+            UserTradeSummary.user_id == 1,
+            UserTradeSummary.brokerage.in_(["Nomad", "XP", "NuInvest"])
+        )
         .delete(synchronize_session=False)
     )
+
+    db.session.commit()
+    print(f"{deleted} registros deletados com sucesso.")
+    #    Apaga os registros da PersonalTradeStatement
+
+    # deleted_personal = (
+    #     db.session.query(PersonalTradeStatement)
+    #     .filter(
+    #         PersonalTradeStatement.user_id == 1,
+    #         PersonalTradeStatement.investment_type == "Fixed Income")
+    #     .delete(synchronize_session=False)
+    # )
 
     # Apaga os registros da Asset
     # deleted_assets = (
@@ -256,4 +256,5 @@ def get_current_by_investment_type(user_id: int) -> dict:
 
 if __name__ == "__main__":
     with app.app_context():
-        importar_excel_para_banco(r"app\static\datas\aportes.xlsx")
+        # importar_excel_para_banco(r"app\static\datas\aportes.xlsx")
+        delete()

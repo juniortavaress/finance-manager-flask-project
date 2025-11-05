@@ -1,3 +1,6 @@
+
+
+
 document.addEventListener("DOMContentLoaded", () => {
     const script = document.getElementById("company-history");
     if (!script) return;
