@@ -1,5 +1,5 @@
 // chart-utils.js
-console.log("chart-utils.js carregado ✅");
+console.log("chart-utils.js loaded ✅");
 
 const somaArray = arr => arr.reduce((a, b) => a + b, 0);
 
@@ -33,108 +33,6 @@ export function updateChartFromSelects() {
 }
 
 
-
-// PIE
-export const defaultColors = [
-  '#4dc9f6', '#f78ca2', '#66bb6a', '#9575cd', '#ffca28',
-  '#26a69a', '#90caf9', '#ba68c8', '#aed581', '#ffab91'
-];
-
-export function createPieChart(ctx, labels, title, values, total){
-  return new Chart(ctx, {
-      type: 'doughnut',
-      data: {
-        labels,
-        datasets: [{
-          label: title,
-          data: values,
-          backgroundColor: defaultColors.slice(0, labels.length),
-          borderWidth: 1,
-          hoverOffset: 20,
-          hoverBorderWidth: 2,
-          borderColor: '#fff'
-        }]
-      },
-      options: pieOptions(total),
-      plugins: [createCenterTextPlugin(`R$ ${total.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, 25, '#000')]
-    });
-}
-
-export function getDatasetLabelsAndValues(dataObj) {
-  const labels = Object.keys(dataObj);
-  const values = Object.values(dataObj);
-  const total = somaArray(values);
-  return { labels, values, total };
-}
-
-export function pieOptions(total){
-  return{
-    responsive: true,
-    maintainAspectRatio: false,
-    cutout: '70%',
-    layout: { padding: 5 },
-    plugins: {
-      legend: {display: true, position: 'bottom', labels: {usePointStyle: true, pointStyle: 'circle', pointStyleWidth: 5, boxHeight: 5,  padding: 15}},
-      tooltip: {
-        callbacks: {
-          label: function(context) {
-            const value = context.parsed ?? 0; 
-            const percentage = ((value / total) * 100).toFixed(1);
-            return `${percentage}%`;
-          }
-    },
-  },
-}}}
-
-export function createCenterTextPlugin(text, baseFontSize = 25, color = '#000') {
-  return {
-    id: 'centerText',
-    beforeDraw(chart) {
-      const { ctx, chartArea, config } = chart;
-      const meta = chart.getDatasetMeta(0);
-      const firstArc = meta?.data?.[0];
-      if (!firstArc) return;
-
-      const { x: centerX, y: centerY } = firstArc;
-
-      // pega o raio total e o cutout (o buraco no meio)
-      const chartRadius = firstArc.outerRadius;
-      const cutoutRadius = firstArc.innerRadius;
-      const availableRadius = (chartRadius - cutoutRadius) / 2 + cutoutRadius * 0.9; // pequena margem
-
-      // começa com um tamanho base de fonte
-      let fontSize = baseFontSize;
-      ctx.save();
-      ctx.font = `${fontSize}px Arial`;
-      let textWidth = ctx.measureText(text).width;
-
-      // reduz a fonte enquanto o texto for maior que o diâmetro do buraco
-      const maxWidth = cutoutRadius * 1.8; // quanto do centro o texto pode ocupar
-      while (textWidth > maxWidth && fontSize > 10) {
-        fontSize -= 1;
-        ctx.font = `${fontSize}px Arial`;
-        textWidth = ctx.measureText(text).width;
-      }
-
-      // desenha o texto no centro
-      ctx.fillStyle = color;
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText(text, centerX, centerY);
-      ctx.restore();
-    }
-  };
-}
-
-
-
-
-
-
-
-
-
-
 // graph cumulative
 export function parseDateMaybe(d) {
   if (!d) return null;
@@ -143,13 +41,14 @@ export function parseDateMaybe(d) {
   return new Date(d);
 }
 
-export function quarterlyTickFormatter(value, index) {
-  if (index % 3 !== 0) return '';
-  const date = this.getLabelForValue(value);
-  const d = new Date(date);
-  const month = (d.getMonth() + 1).toString().padStart(2, '0');
-  const year = d.getFullYear().toString().slice(-2);
-  return `${month}/${year}`;
+export function quarterlyTickFormatter(step) {
+  return function(value, index) {
+    if (index % step !== 0) return '';
+    const date = new Date(this.getLabelForValue(value));
+    const month = date.toLocaleString('pt-BR', { month: 'short' }).toLowerCase();
+    const year = date.getFullYear().toString().slice(-2);
+    return `${month}/${year}`;
+  };
 }
 
 export const tooltipCallbacks = {
@@ -169,3 +68,36 @@ export const tooltipCallbacks = {
     }
   }
 };
+
+// graph companies
+export  function UserBankFetcherets(metricsArray, data, metricsLabels) {
+        return metricsArray.map(metric => {
+            const btn = document.querySelector(`.metric-btn[data-metric="${metric}"]`);
+            const color = btn.dataset.color;
+            return {
+                label: metricsLabels[metric],
+                data: data.map(d => d[metric]),
+                borderColor: color,
+                backgroundColor: color + "33",
+                fill: true,
+                tension: 0, // linhas retas
+                pointRadius: 4,
+                pointHoverRadius: 6
+            };
+        });
+    }
+
+
+export function updateButtonStyles(metricButtons) {
+    metricButtons.forEach(b => {
+        if (b.classList.contains("active")) {
+            b.style.backgroundColor = b.dataset.color;
+            b.style.color = "white";
+            b.style.borderColor = b.dataset.color;
+        } else {
+            b.style.backgroundColor = "#f5f5f5";
+            b.style.color = "black";
+            b.style.borderColor = "#ccc";
+        }
+    });
+}

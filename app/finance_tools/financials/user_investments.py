@@ -316,6 +316,7 @@ class UserInvestmentsFetcher():
 
             all_histories[brokerage] = brokerage_data
 
+        print('jiji', all_histories)
         return all_histories
 
 

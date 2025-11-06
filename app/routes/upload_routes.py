@@ -1,6 +1,6 @@
 from flask import Blueprint, request, redirect, url_for
 from flask_login import login_required, current_user
-from app.services import process_trade_statements
+from app.services import process_trade_statements, process_manually_input
 from app.models import PersonalTradeStatement
 from app import database as db
 from datetime import datetime
@@ -37,20 +37,6 @@ def upload_incomes():
 def manual_entry():
     """Cria um registro manual de investimento."""
     data = request.form
-    print(data)
-    new_trade = PersonalTradeStatement(
-        user_id=current_user.id,
-        brokerage=data.get('brokerage'),
-        investment_type=data.get('investment_type'),
-        date=datetime.strptime(data.get('date'), "%Y-%m-%d").date(),
-        statement_number=data.get('statement_number'),
-        operation=data.get('operation'),
-        ticker=data.get('ticker'),
-        quantity=float(data.get('quantity', 0)),
-        unit_price=float(data.get('unit_price', 0)),
-        final_value=float(data.get('final_value', 0))
-    )
+    process_manually_input(current_user.id, data)
 
-    db.session.add(new_trade)
-    db.session.commit()
     return redirect(url_for('finance.investments'))

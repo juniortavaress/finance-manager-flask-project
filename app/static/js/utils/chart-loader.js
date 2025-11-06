@@ -1,5 +1,5 @@
-// chart-loader.js
-console.log("chart-loader.js carregado ✅");
+// utils-chart-loader.js
+console.log("chart-loader.js loaded ✅");
 
 export function loadJsonData(elementId) {
   const element = document.getElementById(elementId);
@@ -16,7 +16,6 @@ export function loadJsonData(elementId) {
     return null;
   }
 }
-
 
 export function getChartContext(canvasId) {
   const canvas = document.getElementById(canvasId);

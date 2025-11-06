@@ -54,7 +54,7 @@
 
 {% for company_name, records in companies.items() %}
     {% set latest = records[-1] %}
-    {% if latest.investment_type in ['real estate fund', 'fund'] %}
+    {% if latest.investment_type in ['real_state', 'real estate fund', 'fund'] %}
         {% set _ = funds.update({company_name: records}) %}
     {% elif latest.investment_type in ['stock', 'foreign stock (USD)'] %}
         {% set _ = stocks.update({company_name: records}) %}

@@ -1,7 +1,7 @@
 import { loadJsonData, getChartContext } from '../utils/chart-loader.js';
 import { createPieChart, getDatasetLabelsAndValues } from '../utils/pie-chart.js';
-console.log("graph-pie-expenses-analysis.js foi carregado ✅");
 
+console.log("graph-pie-expenses-analysis.js loaded ✅");
 document.addEventListener('DOMContentLoaded', () => {
   try {
     let chart;

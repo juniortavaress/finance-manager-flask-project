@@ -64,7 +64,7 @@ def nuinvest():
 @finance_bp.route('/xpinvest')
 @login_required
 def xpinvest():
-    return render_investment_page("XP", "xpinvest")
+    return render_investment_page("XPInvest", "xpinvest")
 
 @finance_bp.route('/nomad')
 @login_required

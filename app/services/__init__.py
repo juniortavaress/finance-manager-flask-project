@@ -7,6 +7,6 @@ Centralizes application services for:
 """
 
 from .transaction_service import process_transaction
-from .upload_service import process_trade_statements
+from .upload_service import process_trade_statements, process_manually_input
 
-__all__ = ["process_transaction", "process_trade_statements"]
+__all__ = ["process_transaction", "process_trade_statements", "process_manually_input"]

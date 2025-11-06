@@ -2,7 +2,6 @@ import { loadJsonData, getChartContext } from '../utils/chart-loader.js';
 import { createPieChart, getDatasetLabelsAndValues } from '../utils/pie-chart.js';
 
 console.log("investmentChart.js loaded ✅");
-
 document.addEventListener("DOMContentLoaded", () => {
   try {
     let chart;

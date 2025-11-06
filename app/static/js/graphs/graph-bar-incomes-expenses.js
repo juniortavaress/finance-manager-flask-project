@@ -1,8 +1,7 @@
 import { loadJsonData, getChartContext } from '../utils/chart-loader.js';
 import { calculateYearTotals, getMonthlyData, updateChartFromSelects } from '../utils/chart-utils.js';
 
-console.log("graph-incomes-expenses.js foi carregado ✅");
-
+console.log("graph-bar-incomes-expenses.js loaded ✅");
 document.addEventListener('DOMContentLoaded', () => {
   try{
     const datas = loadJsonData('data-euro-incomes-expenses');

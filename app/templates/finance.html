@@ -9,12 +9,12 @@
 
   <!-- JS Graph Scripts -->
   <script type="module" src="{{ url_for('static', filename='js/graphs/graph-pie-expenses-analysis.js') }}"></script>
-  <script type="module" src="{{ url_for('static', filename='js/graphs/graph-incomes-expenses.js') }}"></script>
+  <script type="module" src="{{ url_for('static', filename='js/graphs/graph-bar-incomes-expenses.js') }}"></script>
 
   {% if active_page == 'finance_real' %}
     <!-- JSON Data Injection -->
     <script type="application/json" id="data-currency-graph"> {{ euro_brl|safe }} </script>
-    <script src="{{ url_for('static', filename='js/graph-euro-price.js') }}"></script>
+    <script type="module" src="{{ url_for('static', filename='js/graphs/graph-euro-price.js') }}"></script>
   {% endif %}
 
 

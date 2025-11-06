@@ -1,4 +1,5 @@
-console.log("pie-chart.js carregado ✅");
+console.log("utils-pie-chart.js loaded ✅");
+
 
 // Constants
 const somaArray = arr => arr.reduce((a, b) => a + b, 0);

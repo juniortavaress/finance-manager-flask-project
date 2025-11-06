@@ -17,7 +17,7 @@
 
         {% else %}
             <script type="application/json" id="company-history">{{ selected_company|tojson }}</script>
-            <script type="module" src="{{ url_for('static', filename='js/graph-companies-data.js') }}"></script>
+            <script type="module" src="{{ url_for('static', filename='js/graphs/graph-companies-data.js') }}"></script>
             {% include "investments/broker.html" %}
         
         {% endif %}

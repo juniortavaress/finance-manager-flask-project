@@ -1,8 +1,7 @@
 import { loadJsonData, getChartContext } from '../utils/chart-loader.js';
 import { parseDateMaybe, quarterlyTickFormatter, tooltipCallbacks } from '../utils/chart-utils.js';
 
-console.log("portfolioPerformanceChart.js carregado ✅");
-
+console.log("portfolioPerformanceChart.js loaded ✅");
 document.addEventListener("DOMContentLoaded", () => {
   try {
     const datas = loadJsonData('datas');
@@ -37,7 +36,6 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       if (chart) chart.destroy();
-
       chart = new Chart(ctx, {
         type: "line",
         data: { 
@@ -83,7 +81,7 @@ document.addEventListener("DOMContentLoaded", () => {
           responsive: true,
           maintainAspectRatio: false,
           scales: {
-            x: {grid: { drawOnChartArea: false }, ticks: {minRotation: 0, maxRotation: 0, callback: quarterlyTickFormatter}},
+            x: {grid: { drawOnChartArea: false }, ticks: {minRotation: 0, maxRotation: 0, callback: quarterlyTickFormatter(3)}},
             y: {beginAtZero: true, title: { display: true, text: "Valor (R$)" }},
             y1: {beginAtZero: true, position: 'right', title: { display: true, text: "Rentabilidade (%)" }, grid: { drawOnChartArea: false }}
           },
