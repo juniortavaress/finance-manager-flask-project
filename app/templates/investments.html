@@ -5,12 +5,12 @@
 {% block navbar %}{% include "components/navbar_invest.html" %}{% endblock %}
 
 {% block page %}
-    <script type="application/json" id="datas"> {{ datas|safe }} </script>
+    
     
     <div class="content-view" id="content-investments"> 
         {% if invest_type == 'home_invest' %}
-
-            <script type="application/json" id="assets">{{ assets | safe }}</script>
+            <script type="application/json" id="datas"> {{ summary_by_brokerage|safe }} </script>
+            <script type="application/json" id="assets">{{ summary_by_investment_type | safe }}</script>
             <script type="module" src="{{ url_for('static', filename='js/graphs/graph-pie-wallet.js') }}"></script>
             <script type="module" src="{{ url_for('static', filename='js/graphs/graph-cumulative-investments.js') }}"></script>
             <div id="home-invest">{% include "investments/home_invest.html" %}</div>

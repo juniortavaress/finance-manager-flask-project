@@ -6,7 +6,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const uploadForm = document.getElementById("uploadForm");
   const folderSection = document.getElementById("folderSelection");
   const manualSection = document.getElementById("manualSection");
-  const dataTypeInput = document.getElementById("dataType");
 
   if (!modal || !addBtn || !select || !uploadForm) {
     console.error("Algum elemento do modal não foi encontrado!");
@@ -39,7 +38,6 @@ document.addEventListener("DOMContentLoaded", () => {
   // Mudar ação do formulário ao selecionar tipo
   select.addEventListener("change", (e) => {
     const value = e.target.value;
-    dataTypeInput.value = value;
 
     const notesURL = uploadForm.dataset.uploadNotesUrl;
     const incomesURL = uploadForm.dataset.uploadIncomesUrl;

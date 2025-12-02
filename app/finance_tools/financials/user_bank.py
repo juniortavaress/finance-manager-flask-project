@@ -1,15 +1,18 @@
-from datetime import date, datetime, date
-import pandas as pd
 import json
 import requests
+
 from collections import defaultdict
-from app import database as db
 from sqlalchemy import func, extract
-from app.models import Contribution, EuroIncomesAndExpenses, RealIncomesAndExpenses, UserTradeSummary
+from datetime import date, datetime, date
+
+from app import database as db
+from app.models import EuroIncomesAndExpenses, RealIncomesAndExpenses
+
 
 class UserBankFetcher():
     """Class responsible for fetching and calculating user financial data."""
 
+    """ HOMEPAGE """
     @staticmethod
     def _get_sums_by_model(model, user_id, procedure=None):
         """
@@ -18,16 +21,6 @@ class UserBankFetcher():
         If procedure is "investment", returns the net investment contribution.
         """
         today = date.today()
-
-        if procedure == "investment":
-            result = db.session.query(
-                func.coalesce(func.sum(model.amount).filter(model.type == "Expense"), 0),
-                func.coalesce(func.sum(model.amount).filter(
-                    model.type == "Income").filter(model.description != "Rendimentos "), 0)
-            ).filter(model.user_id == user_id).one()
-
-            net_contribution = result[0] - result[1]
-            return net_contribution
 
         # General case
         all_months = db.session.query(
@@ -50,28 +43,6 @@ class UserBankFetcher():
 
         return balance, expense, income
 
-    @staticmethod
-    def _get_investment_summary(user_id):
-        """
-        Returns the total invested value and the current total value of all investments.
-        """
-        entries = db.session.query(UserTradeSummary).filter(UserTradeSummary.user_id == user_id).all()
-
-        latest_by_company = {}
-        for entry in entries:
-            company = entry.company
-            if company not in latest_by_company or entry.date > latest_by_company[company].date:
-                latest_by_company[company] = entry
-
-        total_invested = 0
-        total_current_value = 0
-        for entry in latest_by_company.values():
-            current = entry.quantity * entry.current_price
-            invested = entry.quantity * entry.avg_price
-            total_current_value += current + entry.dividend
-            total_invested += invested
-
-        return total_invested, total_current_value
 
 
     @staticmethod
@@ -80,16 +51,9 @@ class UserBankFetcher():
         Aggregates data for the home page: balances, incomes, expenses, and investments.
         Returns a dictionary with formatted string values.
         """
-        # Euro data
-        euro_balance, euro_month_expense, euro_month_income = UserBankFetcher._get_sums_by_model(
-            EuroIncomesAndExpenses, user_id)
-        # Real data
-        real_balance, real_month_expense, real_month_income = UserBankFetcher._get_sums_by_model(
-            RealIncomesAndExpenses, user_id)
-        # Investment data
-        contribution_value = UserBankFetcher._get_sums_by_model(Contribution, user_id, "investment")
-        contribution_value, current_value = UserBankFetcher._get_investment_summary(user_id)
-
+        euro_balance, euro_month_expense, euro_month_income = UserBankFetcher._get_sums_by_model(EuroIncomesAndExpenses, user_id)
+        real_balance, real_month_expense, real_month_income = UserBankFetcher._get_sums_by_model(RealIncomesAndExpenses, user_id)
+        
         # Format values for display
         values = {
             "real_income": real_month_income,
@@ -98,8 +62,6 @@ class UserBankFetcher():
             "euro_expense": euro_month_expense,
             "real_balance": real_balance,
             "euro_balance": euro_balance,
-            "investment_profit": current_value - contribution_value,
-            "investment_current_value": current_value
         }
 
         for key in values:
@@ -107,6 +69,7 @@ class UserBankFetcher():
         return values
 
 
+    """ REAL/EURO PAGE """
     @staticmethod
     def get_euro_prices():
         """
@@ -116,7 +79,6 @@ class UserBankFetcher():
             latest_price (dict): dict with 'data' (DD/MM) and 'valor_eur_brl'
             json_string (str): JSON string with all daily prices sorted ascending
         """
-        print("aqui")
         daily_prices = []
         added_dates = set()
 
@@ -144,7 +106,6 @@ class UserBankFetcher():
 
         latest = daily_prices[-1].copy()
         latest["data"] = datetime.strptime(latest["data"], "%Y-%m-%d").strftime("%d/%m")
-        print(latest, json_string)
         return latest, json_string
 
 
@@ -225,3 +186,5 @@ class UserBankFetcher():
                 }
 
         return years, json.dumps(clean_results)
+    
+

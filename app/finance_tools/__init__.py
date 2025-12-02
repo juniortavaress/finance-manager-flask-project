@@ -10,7 +10,7 @@ All main classes and functions are re-exported here for simplified imports.
 """
 
 # Import main classes from subpackages for easy access
-from .financials import UserInvestmentsFetcher, UserBankFetcher
+from .financials import UserInvestmentsFetcher, UserBankFetcher, GraphAux
 from .trade_notes_extraction import ManagerNotesExtractor, NomadExtractor, NuExtractor, XpExtractor
 from .market_data import CompanyPricesFetcher, UpdateDatabases
 
@@ -24,4 +24,5 @@ __all__ = [
     "XpExtractor",
     "CompanyPricesFetcher",
     "UpdateDatabases",
+    "GraphAux"
 ]

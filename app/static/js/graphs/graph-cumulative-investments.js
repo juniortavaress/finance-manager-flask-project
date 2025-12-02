@@ -22,17 +22,22 @@ document.addEventListener("DOMContentLoaded", () => {
       const investedArray = [];
       const profitArray = [];
       const profitabilityArray = [];
+      const depositArray = [];
 
-      let lastProfit = 0, lastProfitability = 0, lastInvested = 0;
+      let lastProfit = 0, lastProfitability = 0, lastInvested = 0; 
+      let lastDeposit = 0;
 
       for (const e of sortedData) {
         lastProfit = Number(e.profit ?? lastProfit);
         lastProfitability = Number(e.profitability ?? lastProfitability) * 100;
         lastInvested = Number(e.current_invested ?? e.invested ?? lastInvested);
+        lastDeposit = Number(e.deposit ?? lastDeposit);
 
         profitArray.push(lastProfit);
         profitabilityArray.push(lastProfitability);
         investedArray.push(lastInvested);
+        
+        depositArray.push(lastDeposit);
       }
 
       if (chart) chart.destroy();
@@ -42,12 +47,23 @@ document.addEventListener("DOMContentLoaded", () => {
           labels: labels,
           datasets: [
             {
+              label: "Valor Aportado",
+              data: depositArray,
+              borderColor: "#8e44ad", // roxo diferente do azul do Investido
+              backgroundColor: "rgba(142,68,173,0.2)",
+              fill: false,
+              tension: 0,
+              borderWidth: 3,
+              pointRadius: 0,
+              yAxisID: 'y'
+            },
+            {
               label: "Valor Investido (R$)",
               data: investedArray,
               borderColor: "#3498db",
               backgroundColor: "rgba(52,152,219,0.2)",
               fill: false,
-              tension: 0.4,
+              tension: 0,
               borderWidth: 3,
               pointRadius: 0, // tamanho do ponto
               yAxisID: 'y'
@@ -58,7 +74,7 @@ document.addEventListener("DOMContentLoaded", () => {
               borderColor: "#2ecc71",
               backgroundColor: "rgba(46,204,113,0.2)",
               fill: false,
-              tension: 0.4,
+              tension: 0,
               borderWidth: 3,
               pointRadius: 0,
               yAxisID: 'y'
@@ -69,7 +85,7 @@ document.addEventListener("DOMContentLoaded", () => {
               borderColor: "#f39c12",
               backgroundColor: "rgba(243,156,18,0.2)",
               fill: false,
-              tension: 0.4,
+              tension: 0,
               borderWidth: 3,
               pointRadius: 0,
               yAxisID: 'y1'

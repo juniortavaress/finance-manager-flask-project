@@ -30,8 +30,8 @@ class NomadExtractor:
             cleaned_lines = NomadExtractor._clean_content(text)
             df = NomadExtractor._create_df_records(cleaned_lines, date, negotiation_number)
 
-            NomadExtractor._save_to_database(df, user_id)
-            return df['Ticker'].unique()
+            trades = NomadExtractor._save_to_database(df, user_id)
+            return trades
         
         except Exception as e:
             print(f"Could not extract data from file: {filename}")
@@ -47,8 +47,6 @@ class NomadExtractor:
             date = re.search(r'Confirmation Date\s*[:\-]?\s*(\d{1,2}/\d{1,2}/\d{4})', text, re.IGNORECASE).group(1)
         return text, date
 
-
-        
     @staticmethod
     def _clean_content(text):
         """Cleans and filters the raw text to isolate trade lines, including multi-page data."""
@@ -66,7 +64,6 @@ class NomadExtractor:
             all_lines.extend(lines)
 
         return all_lines
-
 
 
     @staticmethod
@@ -109,6 +106,7 @@ class NomadExtractor:
     @staticmethod
     def _save_to_database(df, user_id):
         """Persists the trade records to the database."""
+        trades_created = []
         def parse_date(date_str):
             for fmt in ("%d/%m/%Y", "%m/%d/%Y"):
                 try:
@@ -116,8 +114,6 @@ class NomadExtractor:
                 except ValueError:
                     continue
             raise ValueError(f"Unknown date format: {date_str}")
-
-
 
         for _, row in df.iterrows():
             # Uso:
@@ -135,4 +131,7 @@ class NomadExtractor:
                 final_value=float(row["Final Value"])
             )
             db.session.add(trade)
+            trades_created.append(trade)
         db.session.commit()
+        return trades_created
+

@@ -52,6 +52,10 @@ export function quarterlyTickFormatter(step) {
 }
 
 export const tooltipCallbacks = {
+  title() {
+    return ""; // remove a data do topo do tooltip
+  },
+
   label(context) {
     const label = context.dataset.label;
     const value = context.parsed.y;
@@ -59,6 +63,11 @@ export const tooltipCallbacks = {
     if (label.includes("Lucro") || label.includes("Investido")) {
       // valores em reais
       return `${label}: R$ ${value.toLocaleString("pt-BR", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      })}`;
+    } else if (label.includes("Valor Aportado")) {
+      return `R$ ${value.toLocaleString("pt-BR", {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2
       })}`;

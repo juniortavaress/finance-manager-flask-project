@@ -35,8 +35,8 @@ class NuExtractor:
                     
                 cleaned_lines = NuExtractor._clean_content(text)
                 df = NuExtractor._create_df_records(cleaned_lines, date, negotiation_number, total_price)
-                NuExtractor._save_to_database(df, user_id)
-                return df['Ticker'].unique()
+                trades = NuExtractor._save_to_database(df, user_id)
+                return trades
         
         except Exception as e:
             print(f"Could not extract data from file: {filename}")
@@ -91,8 +91,6 @@ class NuExtractor:
                 bank_name = ' '.join(broadcaster.split()[:2])
                 formated_tax = "CDI" if tax in ["0", "0.00"] else f"{tax}%"
                 ticker = f"{bank_name} - {formated_tax} - {code}"
-            print(ticker)
-
             
             trade = PersonalTradeStatement(
                 user_id=user_id,
@@ -106,6 +104,7 @@ class NuExtractor:
                 unit_price=float(str(unit_price).replace("R$", "").strip().replace(".", "").replace(",", ".")),  # trata moeda brasileira
                 final_value=float(str(total_price).replace("R$", "").strip().replace(".", "").replace(",", "."))  # idem
             )
+
             db.session.add(trade)
             db.session.commit()
 
@@ -115,6 +114,8 @@ class NuExtractor:
             traceback.print_exc() 
             return None
         
+
+
     @staticmethod
     def _clean_content(text):
         """Cleans and filters the raw text to isolate trade lines."""
@@ -202,6 +203,7 @@ class NuExtractor:
     @staticmethod
     def _save_to_database(df, user_id):
         """Persists the trade records to the database."""
+        trades_created = []
         for _, row in df.iterrows():
             ticker = str(row["Ticker"]).strip()
 
@@ -226,6 +228,9 @@ class NuExtractor:
                 final_value=float(row["Final Value"])
             )
             db.session.add(trade)
+            trades_created.append(trade)
         db.session.commit()
+        return trades_created
+
 
   

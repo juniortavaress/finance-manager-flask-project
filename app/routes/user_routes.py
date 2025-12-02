@@ -4,6 +4,7 @@ from flask_login import login_required, current_user
 from app.models import Transaction
 from app.finance_tools import UserBankFetcher
 
+from app.finance_tools import CompanyPricesFetcher, UpdateDatabases, ManagerNotesExtractor
 
 user_bp = Blueprint('user', __name__)
 

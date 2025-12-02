@@ -3,6 +3,18 @@ from app.models import Transaction, Contribution, EuroIncomesAndExpenses, RealIn
 from app import database as db
 
 def process_transaction(form_data, user_id):
+    transaction = _add_transaction(user_id, form_data)
+
+    if transaction.category == "Investments":
+        _process_investiments(user_id, transaction)
+
+    if transaction.coin_type == "Euro":
+        _process_finance(user_id, transaction, EuroIncomesAndExpenses)
+    elif transaction.coin_type == "Real":
+        _process_finance(user_id, transaction, RealIncomesAndExpenses)
+
+@staticmethod
+def _add_transaction(user_id, form_data):
     transaction = Transaction(
         user_id=user_id,
         date=datetime.strptime(form_data['date'], '%Y-%m-%d').date(),
@@ -13,48 +25,45 @@ def process_transaction(form_data, user_id):
         value=float(form_data['value'])
     )
 
-    try:
-        db.session.add(transaction)
-        db.session.commit()
-    except Exception as e:
-        db.session.rollback()
-        print(f"Error saving transaction: {e}")
-        return
+    db.session.add(transaction)
+    db.session.commit()
+    return transaction
 
-    if transaction.category == "Investments":
-        contribution = Contribution(
-            user_id=user_id,
-            transaction=transaction,
-            date=transaction.date,
-            description=transaction.description,
-            amount=transaction.value
-        )
-        db.session.add(contribution)
 
-    elif transaction.coin_type == "Euro":
-        euro_data = EuroIncomesAndExpenses(
-            user_id=user_id,
-            transaction=transaction,
-            date=transaction.date,
-            type=transaction.type,
-            category=transaction.category,
-            amount=transaction.value
-        )
-        db.session.add(euro_data)
+@staticmethod
+def _process_finance(user_id, transaction, model):
+    data = model(
+        user_id=user_id,
+        transaction=transaction,
+        date=transaction.date,
+        type=transaction.type,
+        category=transaction.category,
+        amount=transaction.value
+    )
+    db.session.add(data)
+    db.session.commit()
 
-    elif transaction.coin_type == "Real":
-        real_data = RealIncomesAndExpenses(
-            user_id=user_id,
-            transaction=transaction,
-            date=transaction.date,
-            type=transaction.type,
-            category=transaction.category,
-            amount=transaction.value
-        )
-        db.session.add(real_data)
 
-    try:
-        db.session.commit()
-    except Exception as e:
-        db.session.rollback()
-        print(f"Error saving additional data: {e}")
+@staticmethod
+def _process_investiments(user_id, transaction):
+    desc_lower = transaction.description.lower()
+    if "nu" in desc_lower:
+        brokerage_key = "NuInvest"
+    elif "xp" in desc_lower:
+        brokerage_key = "XPInvest"
+    elif "nomad" in desc_lower:
+        brokerage_key = "Nomad"
+    else:
+        brokerage_key = transaction.description
+
+    contribution = Contribution(
+        user_id=user_id,
+        transaction=transaction,
+        date=transaction.date,
+        type=transaction.type,
+        brokerage=brokerage_key,
+        amount=transaction.value
+    )
+    db.session.add(contribution)
+    db.session.commit()
+

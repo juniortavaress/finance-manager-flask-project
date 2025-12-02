@@ -1,16 +1,17 @@
+import json
 import calendar
 
 from datetime import date
 from collections import defaultdict
 
 from app import database as db
-from app.models import Transaction, UserTradeSummary
+from app.models import UserTradeSummary, Contribution
 
 
 class UserInvestmentsFetcher():
     """Class responsible for fetching and calculating user investment data."""
 
-    def get_historic_deposits(user_id: int, summary_by_brokerage: dict) -> dict:
+    def get_historic_deposits(user_id: int) -> dict:
         """
         Retrieve and accumulate historical investment deposits for a given user.
 
@@ -21,11 +22,13 @@ class UserInvestmentsFetcher():
         Returns:
             dict: Updated summary_by_brokerage containing accumulated deposits by date.
         """
+        summary_by_brokerage = defaultdict(lambda: {"date": [], "deposit": []})
+
         results = (
-            Transaction.query
-            .with_entities(Transaction.description, Transaction.value, Transaction.date)
-            .filter(Transaction.user_id == user_id, Transaction.category == "Investments")
-            .order_by(Transaction.date.asc())
+            Contribution.query
+            .with_entities(Contribution.brokerage, Contribution.amount, Contribution.date)
+            .filter(Contribution.user_id == user_id)
+            .order_by(Contribution.date.asc())
             .all()
         )
 
@@ -37,7 +40,7 @@ class UserInvestmentsFetcher():
             if "nu" in desc_lower:
                 key = "NuInvest"
             elif "xp" in desc_lower:
-                key = "XP"
+                key = "XPInvest"
             elif "nomad" in desc_lower:
                 key = "Nomad"
             else:
@@ -46,7 +49,17 @@ class UserInvestmentsFetcher():
             running_totals[key] += value
             summary_by_brokerage[key]["date"].append(date_)
             summary_by_brokerage[key]["deposit"].append(running_totals[key])
+        
+        for key, data in summary_by_brokerage.items():
+            first_date = data["date"][0] if data["date"] else None
+            summary_by_brokerage[key]["first_date"] = first_date
+
         return summary_by_brokerage
+
+
+
+
+
 
 
     def get_invested_values(user_id: int, deposits: dict) -> dict:
@@ -55,34 +68,25 @@ class UserInvestmentsFetcher():
 
         Returns cumulative values, profit, profitability, deposits, and cash.
         """
-        entries = (
-            db.session.query(UserTradeSummary)
-            .filter_by(user_id=user_id)
-            .order_by(UserTradeSummary.date.asc())
-            .all()
-        )
+        entries = (db.session.query(UserTradeSummary).filter_by(user_id=user_id).order_by(UserTradeSummary.date.asc()).all())
 
-        if not entries:
-            return {}
-
-        start_date = entries[0].date
+        start_date =  min([v.get("first_date") for v in deposits.values() if v.get("first_date") is not None])
         end_date = date.today()
-        brokerages = sorted({e.brokerage for e in entries if e.brokerage})
+        brokerages = list(deposits.keys())
 
-         # Organize entries by brokerage and company
+        # Organize entries by brokerage and company
         data_by_broker = defaultdict(lambda: defaultdict(list))
         for e in entries:
             data_by_broker[e.brokerage][e.company].append(e)
 
         all_histories = defaultdict(list)
-
         for brokerage in brokerages:
-            all_histories[brokerage] = UserInvestmentsFetcher._process_broker_history(
-                brokerage, data_by_broker[brokerage], deposits.get(brokerage, {}), start_date, end_date
-            )
+            pass
+            # all_histories[brokerage] = UserInvestmentsFetcher._process_broker_history(user_id, brokerage, data_by_broker[brokerage], deposits.get(brokerage, {}), start_date, end_date)
 
         all_histories["all"] = UserInvestmentsFetcher._aggregate_all_brokerages(all_histories, brokerages)
         return all_histories
+
 
     @staticmethod
     def _month_range(start, end):
@@ -95,59 +99,61 @@ class UserInvestmentsFetcher():
             current = date(year, month, 1)
 
 
-    @staticmethod
-    def _process_broker_history(brokerage, company_data, deposit_data, start_date, end_date):
-        """Calculate the month-by-month investment history for a single brokerage."""
-        filled_deposits = {}
-        dep_data = sorted(zip(deposit_data.get("date", []), deposit_data.get("deposit", [])))
-        last_dep = 0.0
+    # @staticmethod
+    # def _process_broker_history(user_id, brokerage, company_data, deposit_data, start_date, end_date):
+    #     """Calculate the month-by-month investment history for a single brokerage."""
+    #     old_entries = db.session.query(OldInvestment).filter_by(user_id=user_id, brokerage=brokerage).all()
+    #     old_profit = sum(e.profit for e in old_entries)
 
-        month_history = []
-        latest_by_company = {}
+    #     filled_deposits = {}
+    #     dep_data = sorted(zip(deposit_data.get("date", []), deposit_data.get("deposit", [])))
+    #     last_dep = 0.0
 
+    #     month_history = []
+    #     latest_by_company = {}
 
-        for month_start in UserInvestmentsFetcher._month_range(start_date, end_date):
-            month_end_day = calendar.monthrange(month_start.year, month_start.month)[1]
-            month_end = date(month_start.year, month_start.month, month_end_day)
+    #     for month_start in UserInvestmentsFetcher._month_range(start_date, end_date):
+    #         month_end_day = calendar.monthrange(month_start.year, month_start.month)[1]
+    #         month_end = date(month_start.year, month_start.month, month_end_day)
 
-            # Update cumulative deposits for this month
-            while dep_data and dep_data[0][0] <= month_end:
-                last_dep = dep_data.pop(0)[1]
-            filled_deposits[month_start] = last_dep
+    #         # Update cumulative deposits for this month
+    #         while dep_data and dep_data[0][0] <= month_end:
+    #             last_dep = dep_data.pop(0)[1]
+    #         filled_deposits[month_start] = last_dep
 
-            # Update latest entry per company until end of month
-            for company, entries_list in company_data.items():
-                entries_sorted = sorted(entries_list, key=lambda x: x.date)
-                last_entry = None
-                for e in entries_sorted:
-                    if e.date <= month_end:
-                        last_entry = e
-                    else:
-                        break
-                if last_entry:
-                    latest_by_company[company] = last_entry
+    #         # Update latest entry per company until end of month
+    #         for company, entries_list in company_data.items():
+    #             entries_sorted = sorted(entries_list, key=lambda x: x.date)
+    #             last_entry = None
+    #             for e in entries_sorted:
+    #                 if e.date <= month_end:
+    #                     last_entry = e
+    #                 else:
+    #                     break
+    #             if last_entry:
+    #                 latest_by_company[company] = last_entry
 
-            # Compute invested, current value, dividends, profit, cash, profitability
-            invested = sum(e.quantity * e.avg_price for e in latest_by_company.values())
-            current_invested = sum(e.quantity * e.current_price for e in latest_by_company.values())
-            dividends_total = sum(e.dividend for e in latest_by_company.values())
-            profit = sum((e.quantity * (e.current_price - e.avg_price) + e.dividend) for e in latest_by_company.values())
-            deposit = filled_deposits.get(month_start, 0)
-            cash = deposit - invested + dividends_total
-            profitability = profit / invested if invested > 0 else 0
+    #         # Compute invested, current value, dividends, profit, cash, profitability
+    #         invested = sum(e.quantity * e.avg_price for e in latest_by_company.values())
+    #         current_invested = sum(e.quantity * e.current_price for e in latest_by_company.values())
+    #         dividends_total = sum(e.dividend for e in latest_by_company.values())
+    #         profit = sum((e.quantity * (e.current_price - e.avg_price) + e.dividend) for e in latest_by_company.values())
+    #         deposit = filled_deposits.get(month_start, 0)
+    #         cash = deposit - invested + dividends_total + old_profit
+    #         profitability = profit / invested if invested > 0 else 0
 
-            month_history.append({
-                "month": month_start.strftime("%Y-%m"),
-                "invested": invested,
-                "current_invested": current_invested,
-                "profit": profit,
-                "profitability": profitability,
-                "deposit": deposit,
-                "cash": cash,
-                "dividends": dividends_total
-            })
+    #         month_history.append({
+    #             "month": month_start.strftime("%Y-%m"),
+    #             "invested": invested,
+    #             "current_invested": current_invested,
+    #             "profit": profit,
+    #             "profitability": profitability,
+    #             "deposit": deposit,
+    #             "cash": cash,
+    #             "dividends": dividends_total
+    #         })
 
-        return month_history
+    #     return month_history
     
     @staticmethod
     def _aggregate_all_brokerages(all_histories, brokerages):
@@ -204,12 +210,18 @@ class UserInvestmentsFetcher():
     @staticmethod
     def get_history_values(user_id) -> None:
         """Fetch, process, and return historical investment data per brokerage."""
-        deposits = defaultdict(lambda: {"date": [], "deposit": []})
-        summary_by_brokerage = UserInvestmentsFetcher.get_historic_deposits(user_id, deposits)
+        summary_by_brokerage = UserInvestmentsFetcher.get_historic_deposits(user_id)
+        # UserInvestmentsFetcher.update_broker_status(user_id, summary_by_brokerage)
 
-        summary_by_brokerage = UserInvestmentsFetcher.get_invested_values(user_id, summary_by_brokerage)
-        last_datas = UserInvestmentsFetcher.get_current_values(summary_by_brokerage)
-        return last_datas, summary_by_brokerage
+        if summary_by_brokerage:
+            summary_by_brokerage = UserInvestmentsFetcher.get_invested_values(user_id, summary_by_brokerage)
+            
+            
+            
+            last_datas = UserInvestmentsFetcher.get_current_values(summary_by_brokerage)       
+            return last_datas, json.dumps(summary_by_brokerage)
+    
+        return None, None
     
     
     def get_individual_invested_values(user_id: int) -> dict:
@@ -228,12 +240,7 @@ class UserInvestmentsFetcher():
         all_histories = {}
 
         # Fetch all distinct brokerages for the user
-        brokerages = (
-            db.session.query(UserTradeSummary.brokerage)
-            .filter(UserTradeSummary.user_id == user_id)
-            .distinct()
-            .all()
-        )
+        brokerages = (db.session.query(UserTradeSummary.brokerage).filter(UserTradeSummary.user_id == user_id).distinct().all())
 
         for brokerage_tuple in brokerages:
             brokerage = brokerage_tuple[0]
@@ -243,10 +250,7 @@ class UserInvestmentsFetcher():
             # Fetch all trade entries for this brokerage
             entries = (
                 db.session.query(UserTradeSummary)
-                .filter(
-                    UserTradeSummary.user_id == user_id,
-                    UserTradeSummary.brokerage == brokerage
-                )
+                .filter(UserTradeSummary.user_id == user_id, UserTradeSummary.brokerage == brokerage)
                 .order_by(UserTradeSummary.date.asc())
                 .all()
             )
@@ -255,7 +259,6 @@ class UserInvestmentsFetcher():
             companies = defaultdict(list)
             for e in entries:
                 companies[e.company].append(e)
-
             brokerage_data = {}
 
             # Process each company separately
@@ -285,20 +288,21 @@ class UserInvestmentsFetcher():
                         quantity = latest_entry.quantity
                         investment_type = latest_entry.investment_type
 
-                        profit = (current_price - avg_price) * quantity + dividends
-                        profitability = (profit * 100 / (quantity * avg_price)
-                                        if avg_price > 0 else 0)
+                        if quantity > 0:
+                            profit = (current_price - avg_price) * quantity + dividends
+                            profitability = (profit * 100 / (quantity * avg_price)
+                                            if avg_price > 0 else 0)
 
-                        accumulated_history.append({
-                            "date": current_date,
-                            "current_invested": current_price,
-                            "quantity": quantity,
-                            "invested": avg_price,
-                            "dividends": dividends,
-                            "profit": profit,
-                            "profitability": profitability,
-                            "investment_type": investment_type
-                        })
+                            accumulated_history.append({
+                                "date": current_date,
+                                "current_invested": current_price,
+                                "quantity": quantity,
+                                "invested": avg_price,
+                                "dividends": dividends,
+                                "profit": profit,
+                                "profitability": profitability,
+                                "investment_type": investment_type
+                            })
 
                 # Keep only the last record of each month
                 monthly_entries = defaultdict(list)
@@ -316,24 +320,6 @@ class UserInvestmentsFetcher():
 
             all_histories[brokerage] = brokerage_data
 
-        print('jiji', all_histories)
         return all_histories
 
 
-
-    @staticmethod
-    def get_current_by_investment_type(user_id: int) -> dict:
-        """Return current investment values grouped by investment type."""
-        entries = (db.session.query(UserTradeSummary).filter_by(user_id=user_id).order_by(UserTradeSummary.date.asc()).all())
-        if not entries:
-            return {}
-
-        latest_by_company = {}
-        for e in entries:
-            if e.company not in latest_by_company or e.date > latest_by_company[e.company].date:
-                latest_by_company[e.company] = e
-
-        investment_summary = defaultdict(float)
-        for e in latest_by_company.values():
-            investment_summary[e.investment_type] += e.quantity * e.current_price
-        return dict(investment_summary)

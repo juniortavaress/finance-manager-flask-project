@@ -11,19 +11,14 @@
   <script type="module" src="{{ url_for('static', filename='js/graphs/graph-pie-expenses-analysis.js') }}"></script>
   <script type="module" src="{{ url_for('static', filename='js/graphs/graph-bar-incomes-expenses.js') }}"></script>
 
-  {% if active_page == 'finance_real' %}
-    <!-- JSON Data Injection -->
-    <script type="application/json" id="data-currency-graph"> {{ euro_brl|safe }} </script>
-    <script type="module" src="{{ url_for('static', filename='js/graphs/graph-euro-price.js') }}"></script>
-  {% endif %}
+  <script type="application/json" id="data-currency-graph"> {{ euro_brl|safe }} </script>
+  <script type="module" src="{{ url_for('static', filename='js/graphs/graph-euro-price.js') }}"></script>
 
 
   <!-- Main Layout -->
   <div id="euro-finance-container">
-
     <!-- Left Graphs -->
     <div id="euro-left-section">
-
       <!-- Incomes vs Expenses -->
       <div class="finance-card" id="card-incomes-expenses">
         <div class="header-graph">
@@ -48,17 +43,8 @@
 
     <!-- Right Graphs -->
     <div id="euro-right-section">
-        {% if active_page == 'finance_euro' %}
-        <!-- Euro to BRL Exchange -->
-        <div class="finance-card" id="card-euro-exchange">
-          <div class="header-graph">
-            <div class="title-graph">Exchange Rate — {{ euro_brl["data"] }}</div>
-          </div>
-          <div id="exchange-rate-display">
-            <span>1 €</span> <span>=</span> <span>R$ {{ "%.2f"|format(euro_brl["valor_eur_brl"]) }}</span>
-          </div>
-        </div>
-      {% else %}
+ 
+      {% if active_page == 'finance_euro' %}
         <!-- Currency Exchange Chart -->
         <div class="finance-card" id="currency-exchange-card">
           <div class="header-graph">
@@ -69,7 +55,6 @@
           </div>
         </div>
       {% endif %}
-
       <!-- Monthly Expenses Breakdown -->
       <div class="finance-card" id="card-expenses-breakdown">
         <div class="header-graph">

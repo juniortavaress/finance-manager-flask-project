@@ -7,7 +7,7 @@ from collections import defaultdict
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.insert(0, parent_dir)
 from app import create_app, database as db
-from app.models import Transaction, Contribution, EuroIncomesAndExpenses, PersonalTradeStatement, CompanyDatas, Assets, RealIncomesAndExpenses, User, Assets, UserTradeSummary,UserDividents
+from app.models import Transaction, Contribution, EuroIncomesAndExpenses, Assets, User, PersonalTradeStatement, BrokerStatus, RealIncomesAndExpenses, UserTradeSummary, UserDividents
 
 app = create_app()
 
@@ -57,7 +57,7 @@ def add_transaction_from_dict(data):
             transaction=new_transaction,
             date=new_transaction.date,
             type=type_,
-            description=data['description'],
+            brokerage=data['description'],
             amount=new_transaction.value
         )
         db.session.add(new_contribution)
@@ -134,35 +134,94 @@ def add_dividend(user_id=1):
 
 def delete():
     deleted = (
-        db.session.query(UserTradeSummary)
+        db.session.query(User)
         .filter(
-            UserTradeSummary.user_id == 1,
-            UserTradeSummary.brokerage.in_(["Nomad", "XP", "NuInvest"])
+            User.id == 1,
         )
         .delete(synchronize_session=False)
     )
 
+    deleted = (
+        db.session.query(PersonalTradeStatement)
+        .filter(
+            PersonalTradeStatement.user_id == 1,
+        )
+        .delete(synchronize_session=False)
+    )
+    deleted = (
+        db.session.query(BrokerStatus)
+        .filter(
+            BrokerStatus.user_id == 1,
+        )
+        .delete(synchronize_session=False)
+    )
+
+    
+    # db.session.query(BrokerStatus).filter(
+    #     BrokerStatus.user_id == 1
+    # ).update(
+    #     {BrokerStatus.cash: BrokerStatus.total_contributions, 
+    #     BrokerStatus.invested_value: 0}, 
+    #     synchronize_session=False
+    # )
+
+
+    deleted = (
+        db.session.query(Transaction)
+        .filter(
+            Transaction.user_id == 1,
+        )
+        .delete(synchronize_session=False)
+    )
+
+    deleted = (
+        db.session.query(UserTradeSummary)
+        .filter(
+            UserTradeSummary.user_id == 1,
+        )
+        .delete(synchronize_session=False)
+    )
+
+
+    deleted = (
+        db.session.query(Assets)
+        .filter(
+            Assets.user_id == 1,
+        )
+        .delete(synchronize_session=False)
+    )
+
+
     db.session.commit()
-    print(f"{deleted} registros deletados com sucesso.")
+    # print(f"{deleted} registros deletados com sucesso.")
     #    Apaga os registros da PersonalTradeStatement
 
     # deleted_personal = (
     #     db.session.query(PersonalTradeStatement)
     #     .filter(
-    #         PersonalTradeStatement.user_id == 1,
-    #         PersonalTradeStatement.investment_type == "Fixed Income")
+    #         PersonalTradeStatement.id == 5,
+    # )
     #     .delete(synchronize_session=False)
     # )
-
-    # Apaga os registros da Asset
+    # trade = db.session.query(PersonalTradeStatement).filter_by(id=6).first()
+    # if trade:
+    #     trade.quantity = 2
+    #     trade.final_value = 3000.0
+    #     trade.unit_price = 3000.0
+    #     db.session.commit()
+    #     print("Trade atualizado com sucesso!")
+    # else:
+    #     print("Trade não encontrado")
+    # # Apaga os registros da Asset
     # deleted_assets = (
     #     db.session.query(Assets)
     #     .filter(Assets.user_id == 1)
     #     .delete(synchronize_session=False)
     # )
 
-    db.session.commit()
+    # db.session.commit()
 
+    # print("aqui")
     # print(f"{deleted_personal} registros deletados da PersonalTradeStatement.")
     # print(f"{deleted_assets} registros deletados da Asset.")
 
@@ -229,32 +288,11 @@ def add_investment_type_column():
         print(f"Coluna 'investment_type' adicionada e {len(all_trades)} registros atualizados.")
 
 
-def get_current_by_investment_type(user_id: int) -> dict:
-    # 1️⃣ Pega todas as operações do usuário
-    entries = (
-        db.session.query(UserTradeSummary)
-        .filter_by(user_id=user_id)
-        .order_by(UserTradeSummary.date.asc())
-        .all()
-    )
-    
-    if not entries:
-        return {}
-
-    # 2️⃣ Organiza por company para pegar a última operação
-    latest_by_company = {}
-    for e in entries:
-        if e.company not in latest_by_company or e.date > latest_by_company[e.company].date:
-            latest_by_company[e.company] = e
-
-    # 3️⃣ Agrupa por investment_type e soma o valor atual (quantity * current_price)
-    investment_summary = defaultdict(float)
-    for e in latest_by_company.values():
-        investment_summary[e.investment_type] += e.quantity * e.current_price
-    print(investment_summary)
-    return dict(investment_summary)
 
 if __name__ == "__main__":
     with app.app_context():
         # importar_excel_para_banco(r"app\static\datas\aportes.xlsx")
         delete()
+        # from app import db
+
+      

@@ -33,16 +33,14 @@ class ManagerNotesExtractor:
         calculates proportional fees, and saves the data to the database.
         Returns a list of unique traded tickers.
         """
-        unique_tickers = []
         broker = ManagerNotesExtractor._extract_broker_from_statement(file)
-        
+        print(broker)
         if broker == "Nu Invest":
-            unique_tickers = NuExtractor.get_info_from_nu(filename, file, user_id)
-            
+            trades = NuExtractor.get_info_from_nu(filename, file, user_id)
         elif broker == "Nomad":
-            unique_tickers = NomadExtractor.get_info_from_nomad(filename.filename, file, user_id)
+            trades = NomadExtractor.get_info_from_nomad(filename.filename, file, user_id)
         elif broker == "Xp Invest":
             XpExtractor.get_info_from_xp(filename, file, user_id)
-        return unique_tickers
+        return trades
 
 

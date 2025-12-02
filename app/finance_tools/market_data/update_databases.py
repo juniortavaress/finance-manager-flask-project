@@ -1,13 +1,14 @@
+from datetime import date, timedelta
 from app import database as db
-from app.models import PersonalTradeStatement, CompanyDatas, UserTradeSummary, Assets, UserDividents
-from datetime import date
-import re 
-from dateutil.relativedelta import relativedelta
+from app.models import PersonalTradeStatement, Assets, BrokerStatus, User, UserTradeSummary, Contribution
+from app.finance_tools.market_data.update_fixed_income_investments import UpdateFixedIncomesDatabases
+from app.finance_tools.market_data.update_equity_investiments import UpdateEquityDatabases
+from sqlalchemy import func
+
 
 class UpdateDatabases:
-    def atualize_assets_db(list_tickers, user_id):
+    def atualize_assets_db(user_id, list_tickers):
         """Updates the user's asset records based on current trade quantities."""
-        print('Updating assets database...')
         for ticker in list_tickers:
             trades = PersonalTradeStatement.query.filter_by(user_id=user_id, ticker=ticker).all()
             current_qty = sum(t.quantity if t.operation == 'B' else -t.quantity for t in trades)
@@ -34,224 +35,84 @@ class UpdateDatabases:
         db.session.commit()
 
 
-    def atualize_summary_db(user_id):
-        """Updates the user trade summary table based on price and trade history."""
-        print("Updating summary database...")
-        trades = db.session.query(PersonalTradeStatement).filter_by(user_id=user_id).order_by(PersonalTradeStatement.date).all()
-        
-        fixed_income_trades_by_ticker = {}
-        other_trades_by_ticker = {}
-        for trade in trades:
+    def atualize_summary(user_id, trades):
+        """
+        Updates the user trade summary table based on a list of trades.
+
+        For each trade:
+        1. Updates the user's cash balance.
+        2. Updates the stock summary if the investment is not a fixed income.
+        """
+        print("atualize_summary")
+        print("trades", trades)
+        oldest_date = min(trades, key=lambda t: t.date).date
+        brokerages = list({t.brokerage for t in trades})
+
+        for trade in trades:    
+            print(trade.investment_type)
+            # UpdateDatabases._atualize_cash(user_id, trade)
             if trade.investment_type == "fixed_income":
-                fixed_income_trades_by_ticker.setdefault(trade.ticker, []).append(trade)
-            else:
-                other_trades_by_ticker.setdefault(trade.ticker, []).append(trade)
-
-        UpdateDatabases._atualize_fixed_income_trades_by_ticker(user_id, fixed_income_trades_by_ticker)
-        UpdateDatabases._atualize_other_trades_by_ticker(user_id, other_trades_by_ticker)
+                UpdateFixedIncomesDatabases.atualize_fixed_income(user_id, trade)
+            elif trade.investment_type == "stockes" or trade.investment_type == "fixed_income":
+                UpdateEquityDatabases.atualize_stockes_trades(user_id, trade)
+        UpdateDatabases.update_broker_status(user_id, oldest_date, brokerages)
 
 
-    def _atualize_fixed_income_trades_by_ticker(user_id, trades_by_ticker):
-        """Atualiza os resumos de renda fixa (CDB, Tesouro etc.) no banco."""
-        print("Updating fixed income summaries...")
-
-        # Cache existentes para evitar duplicatas
-        existing_summaries = (db.session.query(UserTradeSummary) .filter_by(user_id=user_id) .all())
-        existing_keys = {(s.company, s.date) for s in existing_summaries}
-        today = date.today()
-
-        for ticker, trades in trades_by_ticker.items():
-            # Ignora se não há negociações
-            if not trades:
-                continue
-
-            trades.sort(key=lambda t: t.date)
-            current_quantity = sum(t.quantity if t.operation == "B" else -t.quantity for t in trades)
-            if current_quantity <= 0:
-                continue
-
-            # Dados da última negociação (pra pegar corretora e tipo)
-            last_trade = max(trades, key=lambda t: t.date)
-            brokerage = last_trade.brokerage
-            investment_type = last_trade.investment_type
-
-            # Calcula preço médio de compra
-            buy_trades = [t for t in trades if t.operation == "B"]
-            total_buy_value = sum(t.final_value for t in buy_trades)
-            total_buy_quantity = sum(t.quantity for t in buy_trades)
-            avg_price = (round(total_buy_value / total_buy_quantity, 2) if total_buy_quantity > 0 else 0)
-
-            # Extrai taxa nominal do nome (ex: "15.43%")
-            match = re.search(r"([\d.,]+)%", ticker)
-            rate = float(match.group(1).replace(",", ".")) if match else 0.0
-            print(rate)
-
-            # Data da primeira compra — base para o cálculo do rendimento
-            start_date = min(t.date for t in buy_trades)
-            start_month = date(start_date.year, start_date.month, 1)
-            end_month = date(today.year, today.month, 1)
-
-         # Gera lista de meses (primeiro dia de cada mês até o mês atual)
-        months = []
-        current_month = start_month
-        while current_month <= end_month:
-            months.append(current_month)
-            current_month += relativedelta(months=1)
-
-        invested_value = total_buy_value
-
-        # Loop mês a mês
-        for month_date in months:
-            if (ticker, month_date) in existing_keys:
-                continue  # já existe no banco, pula
-
-            # Quantos dias passaram desde a data da compra
-            days_passed = (month_date - start_date).days
-            if days_passed < 0:
-                continue  # antes da compra
-
-            # Calcula valor atualizado com juros compostos
-            current_value = invested_value * ((1 + rate / 100) ** (days_passed / 365))
-            current_price = round(current_value / current_quantity, 2)
-
-            summary = UserTradeSummary(
-                user_id=user_id,
-                brokerage=brokerage,
-                investment_type=investment_type,
-                date=month_date,
-                company=ticker,
-                quantity=current_quantity,
-                current_price=current_price,
-                avg_price=avg_price,
-                dividend=0,
-            )
-            db.session.add(summary)
-            existing_keys.add((ticker, month_date))  # marca como salvo
-
-        db.session.commit()
+    def atualize_daily_summary():
+        UpdateFixedIncomesDatabases.update_fixed_income_daily()
+        UpdateEquityDatabases.update_equities_daily()
+        from datetime import datetime
+        UpdateDatabases.update_broker_status(target_date=datetime.strptime("2020-11-01", "%Y-%m-%d").date())
 
 
+    @staticmethod
+    def update_broker_status(user_id=None, target_date=None, brokerage=None):
 
+        start_date = target_date if target_date else date.today() - timedelta(days=1)
+        users = db.session.query(User).all() if not user_id else [db.session.query(User).get(user_id)]
+            
+        print(users)
 
-    def _atualize_other_trades_by_ticker(user_id, trades_by_ticker):
-        # Load all prices
-        prices = db.session.query(CompanyDatas).order_by(CompanyDatas.date).all()
+        for user in users:
+            if target_date:
+                db.session.query(BrokerStatus).filter(
+                    BrokerStatus.user_id == user.id,
+                    BrokerStatus.date >= target_date
+                ).delete()
+                db.session.commit()
 
-        # Load all dividends and group by ticker
-        dividends = db.session.query(UserDividents).filter_by(user_id=user_id).all()
-        dividends_by_ticker = {}
-        for d in dividends:
-            dividends_by_ticker.setdefault(d.ticker, []).append(d)
+            brokerages = [br_row.brokerage for br_row in db.session.query(Contribution.brokerage).filter_by(user_id=user.id).distinct()] if not brokerage else brokerage
+            
+            # print(brokerages)
+            for brokerage in brokerages:
+                current_date = start_date
+                while current_date <= date.today():
+                    # print(current_date)
+                    summaries = (db.session.query(UserTradeSummary).filter_by(user_id=user.id, brokerage=brokerage, date=current_date).all())
+                    total_contributions = (db.session.query(func.sum(Contribution.amount)).filter(Contribution.user_id==user.id, Contribution.brokerage==brokerage, Contribution.date<=current_date).scalar()) or 0
+                    buy_operations = (db.session.query(func.sum(PersonalTradeStatement.final_value)).filter(PersonalTradeStatement.user_id==user.id, PersonalTradeStatement.brokerage==brokerage, PersonalTradeStatement.date<=current_date, PersonalTradeStatement.operation=="B").scalar()) or 0
+                    sell_operations = (db.session.query(func.sum(PersonalTradeStatement.final_value)).filter(PersonalTradeStatement.user_id==user.id, PersonalTradeStatement.brokerage==brokerage, PersonalTradeStatement.date<=current_date, PersonalTradeStatement.operation=="S").scalar()) or 0
+                    cash = total_contributions + sell_operations - buy_operations
+                    
+                    invested_value = 0.0
+                    # print("summaries", summaries)
+                    for s in summaries:
+                        if s.investment_type != "fixed_income":
+                            invested_value += s.quantity * s.current_price
+                        else:
+                            invested_value += s.current_price
 
-        # Cache existing summaries to avoid duplicate inserts
-        existing_summaries = db.session.query(UserTradeSummary).filter_by(user_id=user_id).all()
-        existing_keys = {(s.company, s.date) for s in existing_summaries}
+                    # print(invested_value)
+                    broker_status = (db.session.query(BrokerStatus).filter_by(user_id=user.id, brokerage=brokerage, date=current_date).first())
+                    
+                    if not broker_status:
+                        # print("aqui")
+                        broker_status = BrokerStatus(user_id=user.id, brokerage=brokerage, date=current_date)
 
-        for price in prices:
-            ticker = price.company
-            price_date = price.date
+                    broker_status.invested_value = round(invested_value, 2)
+                    broker_status.total_contributions = round(total_contributions, 2)
+                    broker_status.cash = round(cash, 2)
+                    db.session.add(broker_status)
+                    current_date += timedelta(days=1)
+        db.session.commit()    
 
-            if (ticker, price_date) in existing_keys:
-                continue
-
-            ticker_trades = trades_by_ticker.get(ticker, [])
-            trades_until_date = [t for t in ticker_trades if t.date <= price_date]
-
-            if not trades_until_date:
-                continue
-
-            current_quantity = sum(t.quantity if t.operation == 'B' else -t.quantity for t in trades_until_date)
-            if current_quantity <= 0:
-                continue
-
-            buy_trades = [t for t in trades_until_date if t.operation == 'B']
-            total_buy_value = sum(t.final_value for t in buy_trades)
-            total_buy_quantity = sum(t.quantity for t in buy_trades)
-            avg_price = round(total_buy_value / total_buy_quantity, 2) if total_buy_quantity > 0 else 0
-
-            # Sum dividends up to price_date
-            ticker_dividends = dividends_by_ticker.get(ticker, [])
-            total_dividends = sum(d.value for d in ticker_dividends if d.date <= price_date)
-
-            last_trade = max(trades_until_date, key=lambda t: t.date)
-            brokerage = last_trade.brokerage if hasattr(last_trade, 'brokerage') else None
-            investment_type = last_trade.investment_type if hasattr(last_trade, 'investment_type') else None
-
-            summary = UserTradeSummary(
-                user_id=user_id,
-                brokerage=brokerage,
-                investment_type=investment_type,
-                date=price_date,
-                company=ticker,
-                quantity=current_quantity,
-                current_price=price.current_price,
-                avg_price=avg_price,
-                dividend=total_dividends
-            )
-            db.session.add(summary)
-
-        db.session.commit()
-
-
-
-    # def atualize_summary_db(user_id):
-    #     """Updates the user trade summary table based on price and trade history."""
-    #     print("Updating summary database...")
-    #     # Preload all trades and prices
-    #     trades = db.session.query(PersonalTradeStatement).filter_by(user_id=user_id).order_by(PersonalTradeStatement.date).all()
-    #     prices = db.session.query(CompanyDatas).order_by(CompanyDatas.date).all()
-
-    #     # Organize trades by ticker for faster access
-    #     trades_by_ticker = {}
-    #     for trade in trades:
-    #         trades_by_ticker.setdefault(trade.ticker, []).append(trade)
-
-    #     for price in prices:
-    #         ticker = price.company
-    #         price_date = price.date
-
-    #         last_summary = (db.session.query(UserTradeSummary)
-    #             .filter_by(user_id=user_id, company=ticker)
-    #             .order_by(UserTradeSummary.date.desc())
-    #             .first())
-
-    #         # Already updated to this date or earlier
-    #         if last_summary and price_date <= last_summary.date:
-    #             # print(f"{ticker} already updated until {last_summary.date}")
-    #             continue
-
-    #         # Filter trades up to the current price date
-    #         ticker_trades = trades_by_ticker.get(ticker, [])
-    #         trades_until_date = [t for t in ticker_trades if t.date <= price_date]
-
-    #         if trades_until_date:
-    #             current_quantity = sum(t.quantity if t.operation == 'B' else -t.quantity for t in trades_until_date)
-    #             buy_trades = [t for t in trades_until_date if t.operation == 'B']
-    #             total_buy_value = sum(t.final_value for t in buy_trades)
-    #             total_buy_quantity = sum(t.quantity for t in buy_trades)
-    #             avg_price = round(total_buy_value / total_buy_quantity, 2) if total_buy_quantity > 0 else 0
-    #         else:
-    #             current_quantity = 0
-    #             avg_price = 0
-
-    #         # Calculate total dividends
-    #         total_dividends = (db.session.query(UserDividents)
-    #             .filter(UserDividents.user_id == user_id,
-    #                        UserDividents.ticker == ticker,
-    #                        UserDividents.date <= price_date)
-    #             .with_entities(db.func.sum(UserDividents.value))
-    #             .scalar()) or 0
-
-    #         # Save summary record
-    #         if current_quantity > 0:
-    #             summary = UserTradeSummary(
-    #                 user_id=user_id,
-    #                 date=price_date,
-    #                 company=ticker,
-    #                 quantity=current_quantity,
-    #                 current_price=price.current_price,
-    #                 avg_price=avg_price,
-    #                 dividend=total_dividends
-    #             )
-    #             db.session.add(summary)
-    #     db.session.commit()
