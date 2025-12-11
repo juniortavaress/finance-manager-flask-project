@@ -5,6 +5,7 @@ from datetime import datetime
 from app import database as db
 
 def process_trade_statements(files, user_id):
+    print("process_trade_statements")
     trades = []
     for file in files:
         new_trades = ManagerNotesExtractor.get_info_from_trade_statement(file, file.read(), user_id)
@@ -21,6 +22,8 @@ def process_trade_statements(files, user_id):
 
 
 def process_manually_input(user_id, data):
+    print("process_manually_input")
+
     trade = PersonalTradeStatement(
         user_id=user_id,
         brokerage=data.get('brokerage'),
@@ -42,9 +45,9 @@ def process_manually_input(user_id, data):
         UpdateDatabases.atualize_assets_db(user_id, [data.get('ticker')])
 
         if data.get('investment_type') == "cripto":
-            CompanyPricesFetcher.run_api_crypto_history_prices()
+            CompanyPricesFetcher.run_api_crypto_history_prices_brl([data.get('ticker')])
         else:
             CompanyPricesFetcher.run_api_company_history_prices([data.get('ticker')])
 
-    # UpdateDatabases.atualize_summary(user_id, [trade])
+    UpdateDatabases.atualize_summary(user_id, [trade])
 

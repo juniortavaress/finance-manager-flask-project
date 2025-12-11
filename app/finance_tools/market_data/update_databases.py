@@ -53,7 +53,7 @@ class UpdateDatabases:
             # UpdateDatabases._atualize_cash(user_id, trade)
             if trade.investment_type == "fixed_income":
                 UpdateFixedIncomesDatabases.atualize_fixed_income(user_id, trade)
-            elif trade.investment_type == "stockes" or trade.investment_type == "fixed_income":
+            elif trade.investment_type == "stock" or trade.investment_type == "real_state" or trade.investment_type == "cripto":
                 UpdateEquityDatabases.atualize_stockes_trades(user_id, trade)
         UpdateDatabases.update_broker_status(user_id, oldest_date, brokerages)
 
@@ -89,10 +89,12 @@ class UpdateDatabases:
                 while current_date <= date.today():
                     # print(current_date)
                     summaries = (db.session.query(UserTradeSummary).filter_by(user_id=user.id, brokerage=brokerage, date=current_date).all())
+                    print('\n\nsuuu\n\n', summaries)
                     total_contributions = (db.session.query(func.sum(Contribution.amount)).filter(Contribution.user_id==user.id, Contribution.brokerage==brokerage, Contribution.date<=current_date).scalar()) or 0
                     buy_operations = (db.session.query(func.sum(PersonalTradeStatement.final_value)).filter(PersonalTradeStatement.user_id==user.id, PersonalTradeStatement.brokerage==brokerage, PersonalTradeStatement.date<=current_date, PersonalTradeStatement.operation=="B").scalar()) or 0
                     sell_operations = (db.session.query(func.sum(PersonalTradeStatement.final_value)).filter(PersonalTradeStatement.user_id==user.id, PersonalTradeStatement.brokerage==brokerage, PersonalTradeStatement.date<=current_date, PersonalTradeStatement.operation=="S").scalar()) or 0
                     cash = total_contributions + sell_operations - buy_operations
+                    
                     
                     invested_value = 0.0
                     # print("summaries", summaries)
@@ -109,10 +111,14 @@ class UpdateDatabases:
                         # print("aqui")
                         broker_status = BrokerStatus(user_id=user.id, brokerage=brokerage, date=current_date)
 
+                    profit = invested_value + cash - total_contributions
+
                     broker_status.invested_value = round(invested_value, 2)
                     broker_status.total_contributions = round(total_contributions, 2)
+                    broker_status.profit_loss = round(profit, 2)
                     broker_status.cash = round(cash, 2)
                     db.session.add(broker_status)
                     current_date += timedelta(days=1)
         db.session.commit()    
+        print("aquiii")
 

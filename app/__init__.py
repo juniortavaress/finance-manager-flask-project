@@ -3,6 +3,8 @@ from flask import Flask
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
 from flask_sqlalchemy import SQLAlchemy
+# from app.services.sidebar_context import sidebar_context
+
 
 database = SQLAlchemy()
 bcrypt = Bcrypt()
@@ -10,8 +12,6 @@ login_manager = LoginManager()
 
 def create_app():
     app = Flask(__name__)
-
-    # Load configuration
     app.config.from_object('app.config.Config')
 
     # Initialize extensions
@@ -23,11 +23,9 @@ def create_app():
     # Register blueprints
     from app.routes import register_blueprints
     register_blueprints(app)
-    
-    # Configuração básica de logging
-    # logging.getLogger('werkzeug').setLevel(logging.ERROR)
-    # logging.getLogger('flask.app').setLevel(logging.ERROR)
 
+    # app.context_processor(sidebar_context)
+    
     # Optional: database setup or initial data
     with app.app_context():
         database.create_all()

@@ -21,6 +21,7 @@ def manual_entry():
     return redirect(url_for('finance.investments'))
 
 
+"""AQUI RENDIMENTOS"""
 @upload_bp.route('/upload_incomes', methods=['POST'])
 def upload_incomes():
     """Importa base de dados de rendimentos (arquivos, pode ter subpastas)."""

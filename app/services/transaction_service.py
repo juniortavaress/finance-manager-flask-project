@@ -1,5 +1,6 @@
 from datetime import datetime
-from app.models import Transaction, Contribution, EuroIncomesAndExpenses, RealIncomesAndExpenses
+from app.models import Transaction, Contribution
+# IncomesAndExpenses
 from app import database as db
 
 def process_transaction(form_data, user_id):
@@ -8,10 +9,6 @@ def process_transaction(form_data, user_id):
     if transaction.category == "Investments":
         _process_investiments(user_id, transaction)
 
-    if transaction.coin_type == "Euro":
-        _process_finance(user_id, transaction, EuroIncomesAndExpenses)
-    elif transaction.coin_type == "Real":
-        _process_finance(user_id, transaction, RealIncomesAndExpenses)
 
 @staticmethod
 def _add_transaction(user_id, form_data):
@@ -28,21 +25,6 @@ def _add_transaction(user_id, form_data):
     db.session.add(transaction)
     db.session.commit()
     return transaction
-
-
-@staticmethod
-def _process_finance(user_id, transaction, model):
-    data = model(
-        user_id=user_id,
-        transaction=transaction,
-        date=transaction.date,
-        type=transaction.type,
-        category=transaction.category,
-        amount=transaction.value
-    )
-    db.session.add(data)
-    db.session.commit()
-
 
 @staticmethod
 def _process_investiments(user_id, transaction):

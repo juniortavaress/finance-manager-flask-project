@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!rawJson) return console.error("❌ JSON data not found")
     const datas = JSON.parse(rawJson);
 
-    const ctx = document.getElementById('chart-income-expenses-real').getContext('2d');
+    const ctx = document.getElementById('div-chart-real').getContext('2d');
     if (!ctx) return console.error("❌ Canvas context not found")
 
     let realIncomeChart;

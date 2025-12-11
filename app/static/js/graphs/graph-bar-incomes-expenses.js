@@ -1,11 +1,11 @@
 import { loadJsonData, getChartContext } from '../utils/chart-loader.js';
-import { calculateYearTotals, getMonthlyData, updateChartFromSelects } from '../utils/chart-utils.js';
+import { calculateYearTotals, getMonthlyData } from '../utils/chart-utils.js';
 
 console.log("graph-bar-incomes-expenses.js loaded ✅");
 document.addEventListener('DOMContentLoaded', () => {
   try{
-    const datas = loadJsonData('data-euro-incomes-expenses');
-    const ctx = getChartContext('chart-euro-incomes-expenses');
+    const datas = loadJsonData('data-incomes-expenses');
+    const ctx = getChartContext('chart-incomes-expenses');
     let chart;
     
     function drawIncomeGraph(year_selection='all', view='month') {
@@ -78,6 +78,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     drawIncomeGraph();
+    function updateChartFromSelects() {
+      const year = document.getElementById('yearSelect').value;  
+      const view = document.getElementById('viewSelect').value;  
+      drawIncomeGraph(year, view);  
+    }
     document.getElementById('viewSelect').addEventListener('change', updateChartFromSelects);
     document.getElementById('yearSelect').addEventListener('change', updateChartFromSelects);
   }

@@ -1,0 +1,132 @@
+/* ========================================
+   MAIN LAYOUT
+========================================= */
+#finance-container {
+  display: flex;
+  flex-direction: row;
+  gap: 2vh;
+  height: 100%;
+  width: 100%;
+}
+
+.finance-right-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex-grow: 1;
+  height: 100%;
+  gap: 2vh;
+}
+
+
+/* ========================================
+   MAIN CARDS
+========================================= */
+.income-expense-card {
+  background-color: #ffffff;
+  padding: 2vh 3vh 0vh 3vh;
+  gap: 1vh;
+  border-radius: 2vh;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+}
+
+#card-incomes-expenses {
+  height: 100%;
+  width: 100%;
+}
+
+#card-expenses-breakdown {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  width: 100%;
+}
+
+#currency-exchange-card {
+  height: 40%;
+  width: 100%;
+  display: flex;
+}
+
+
+/* ========================================
+   CHART CONTAINERS
+========================================= */
+.graph-container {
+  height: 80%;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-grow: 1;
+}
+
+#chart-incomes-expenses {
+  flex-grow: 1;
+  padding: 0%;
+}
+
+
+#chart-expenses-breakdown {
+  height: 85%;
+  flex-grow: 0;
+}
+
+
+/* ========================================
+   DROPDOWN SELECTS
+========================================= */
+/* Shared size for all selects */
+#yearSelect,
+#yearSelectCumulative,
+#monthSelect,
+#viewSelect {
+  width: 15vh;
+}
+
+#yearSelectCumulative {
+  width: 15vh;
+}
+
+/* Dropdown container */
+.select-graph {
+  display: flex;
+  align-items: center;
+  gap: 2vh;
+  width: fit-content;
+}
+
+/* Dropdown <select> element */
+.select-graph select {
+  height: 80%;
+  width: 40%;
+  padding: 0 1rem;
+  font-size: 1rem;
+  font-family: Roboto, sans-serif;
+  color: #333;
+  background-color: #fff;
+
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  appearance: none;
+
+  /* Custom dropdown arrow */
+  background-image: url("data:image/svg+xml;utf8,<svg fill='gray' height='30' viewBox='0 0 24 24' width='30' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 0.5rem center;
+  background-size: 24px 24px;
+
+  cursor: pointer;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Focus state */
+.select-graph select:focus {
+  outline: none;
+  border-color: #5b8def;
+  box-shadow: 0 0 0 2px rgba(91, 141, 239, 0.2);
+}

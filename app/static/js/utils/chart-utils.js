@@ -26,11 +26,11 @@ export function calculateYearTotals(yearData) {
   return { totalIncome, totalExpense, totalBalance, cumulative };
 }
 
-export function updateChartFromSelects() {
-  const year = document.getElementById('yearSelect').value;  
-  const view = document.getElementById('viewSelect').value;  
-  drawIncomeGraph(year, view);  
-}
+// export function updateChartFromSelects() {
+//   const year = document.getElementById('yearSelect').value;  
+//   const view = document.getElementById('viewSelect').value;  
+//   drawIncomeGraph(year, view);  
+// }
 
 
 // graph cumulative

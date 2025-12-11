@@ -1,62 +1,64 @@
 {% extends "base.html" %}
 
-{% block title %}Finance Euro{% endblock %}
+{% block title %}Finance{% endblock %}
 
 {% block page %}
   <!-- JSON Data Injection -->
-  <script type="application/json" id="data-euro-pie-chart">{{ datas_category|safe }} </script>
-  <script type="application/json" id="data-euro-incomes-expenses"> {{ datas_income_expense|safe }} </script>
+  <script type="application/json" id="data-pie-chart">{{ datas_category|safe }}</script>
+  <script type="application/json" id="data-incomes-expenses">{{ datas_income_expense|safe }}</script>
 
   <!-- JS Graph Scripts -->
   <script type="module" src="{{ url_for('static', filename='js/graphs/graph-pie-expenses-analysis.js') }}"></script>
   <script type="module" src="{{ url_for('static', filename='js/graphs/graph-bar-incomes-expenses.js') }}"></script>
-
-  <script type="application/json" id="data-currency-graph"> {{ euro_brl|safe }} </script>
+  <script type="application/json" id="data-currency-graph">{{ euro_brl|safe }}</script>
   <script type="module" src="{{ url_for('static', filename='js/graphs/graph-euro-price.js') }}"></script>
 
-
   <!-- Main Layout -->
-  <div id="euro-finance-container">
+  <div id="finance-container">
+
     <!-- Left Graphs -->
-    <div id="euro-left-section">
-      <!-- Incomes vs Expenses -->
-      <div class="finance-card" id="card-incomes-expenses">
-        <div class="header-graph">
-          <div class="title-graph">Income vs Expenses</div>
-          <div class="select-graph">
-            <select id="yearSelect">
-              <option value="all" selected>All</option>
-              {% for year in years %}
-                  <option value="{{ year }}">{{ year }}</option>
-              {% endfor %}
-            </select>
-            <select id="viewSelect">
-              <option value="month">Monthly</option>
-              <option value="year">Yearly</option>
-            </select>
-          </div>
+    <div class="income-expense-card">
+
+      <!-- Header: Income vs Expenses -->
+      <div class="header-graph">
+        <div class="title-graph">Income vs Expenses</div>
+        <div class="select-graph">
+          <select id="yearSelect">
+            <option value="all" selected>All</option>
+            {% for year in years %}
+              <option value="{{ year }}">{{ year }}</option>
+            {% endfor %}
+          </select>
+          <select id="viewSelect">
+            <option value="month">Monthly</option>
+            <option value="year">Yearly</option>
+          </select>
         </div>
-        <div class="graph-container" id="chart-income-expenses"> <canvas id="chart-euro-incomes-expenses"></canvas> </div>
       </div>
 
+      <!-- Chart Container -->
+      <div class="graph-container">
+        <canvas id="chart-incomes-expenses"></canvas>
+      </div>
     </div>
 
     <!-- Right Graphs -->
-    <div id="euro-right-section">
- 
+    <div class="finance-right-section">
+
       {% if active_page == 'finance_euro' %}
-        <!-- Currency Exchange Chart -->
-        <div class="finance-card" id="currency-exchange-card">
-          <div class="header-graph">
-            <div class="title-graph">Exchange Rate (BRL → EUR)</div>
-          </div>
-          <div id="chart-currency">
-            <canvas id="chart-brl-eur"></canvas>
-          </div>
+      <!-- Currency Exchange Chart -->
+      <div class="income-expense-card" id="currency-exchange-card">
+        <div class="header-graph">
+          <div class="title-graph">Exchange Rate (BRL → EUR)</div>
         </div>
+        <div class="graph-container">
+          <canvas id="chart-brl-eur"></canvas>
+        </div>
+      </div>
       {% endif %}
+
       <!-- Monthly Expenses Breakdown -->
-      <div class="finance-card" id="card-expenses-breakdown">
+      <div class="income-expense-card" id="card-expenses-breakdown">
         <div class="header-graph">
           <div class="title-graph">Monthly Expense Breakdown</div>
           <div class="select-graph">
@@ -67,7 +69,10 @@
             </select>
           </div>
         </div>
-        <div class="graph-container" id="chart-expenses-breakdown"> <canvas id="chart-euro-expenses-pie"></canvas> </div>
+
+        <div class="graph-container" id="chart-expenses-breakdown">
+          <canvas id="chart-expenses-pie"></canvas>
+        </div>
       </div>
 
     </div>

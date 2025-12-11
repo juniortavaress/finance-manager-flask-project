@@ -5,8 +5,8 @@ console.log("graph-pie-expenses-analysis.js loaded ✅");
 document.addEventListener('DOMContentLoaded', () => {
   try {
     let chart;
-    const datas = loadJsonData('data-euro-pie-chart');
-    const ctx = getChartContext('chart-euro-expenses-pie');
+    const datas = loadJsonData('data-pie-chart');
+    const ctx = getChartContext('chart-expenses-pie');
 
     function drawPieChart(selectedMonth) {
       const monthData = datas[selectedMonth];

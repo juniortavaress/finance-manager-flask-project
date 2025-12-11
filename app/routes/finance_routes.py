@@ -3,7 +3,8 @@ from flask import request
 from flask import Blueprint, render_template
 from flask_login import login_required, current_user
 from app.finance_tools import UserInvestmentsFetcher, UserBankFetcher, GraphAux
-from app.models import EuroIncomesAndExpenses, RealIncomesAndExpenses
+from app.models import Transaction
+
 from flask import redirect, url_for
 
 finance_bp = Blueprint('finance', __name__)
@@ -14,17 +15,18 @@ def finance(currency):
     # Define o modelo e dados de acordo com a moeda
     if currency == 'euro':
         _, euro_real_data = UserBankFetcher.get_euro_prices()
-        model = EuroIncomesAndExpenses
+        coin_type = 'EUR'
         active_page = 'finance_euro'
         exchange_rate = euro_real_data
     elif currency == 'real':
         _, euro_real_data = UserBankFetcher.get_euro_prices()
-        model = RealIncomesAndExpenses
+        coin_type = 'BRL'
         active_page = 'finance_real'
         exchange_rate = euro_real_data
 
-    years, income_expense_data = UserBankFetcher.get_monthly_incomes_and_expenses(model=model, user_id=current_user.id)
-    months, category_data = UserBankFetcher.get_expenses_by_category(current_user.id, model)
+    # model = Transaction.query.filter_by(coin_type=coin_type)
+    years, income_expense_data = UserBankFetcher.get_monthly_incomes_and_expenses(current_user.id, Transaction, coin_type)
+    months, category_data = UserBankFetcher.get_expenses_by_category(current_user.id, Transaction, coin_type)
 
     return render_template(
         'finance.html',
@@ -40,17 +42,12 @@ def finance(currency):
 @finance_bp.route('/investments')
 @login_required
 def investments():     
-    last_datas, summary_by_brokerage = UserInvestmentsFetcher.get_history_values(user_id=current_user.id)
-    
-    if last_datas is None or summary_by_brokerage is None:
-        return redirect(url_for('user.user_homepage', user_id=current_user.id))
-    
+    historic_by_broker, last_datas = GraphAux.get_historic_by_broker(user_id=current_user.id)
     summary_by_investment_type = GraphAux.get_current_by_investment_type(user_id=current_user.id)
-    
     
     return render_template(
         'investments.html',
-        summary_by_brokerage=summary_by_brokerage,
+        summary_by_brokerage=historic_by_broker,
         summary_by_investment_type=summary_by_investment_type,
         formatted_summary=last_datas,
         active_page='investments', 
@@ -85,20 +82,6 @@ def render_investment_page(broker_name: str, invest_type: str):
     selected_company_name = company_name if company_name in companies else next(iter(companies), None)
     selected_company = companies.get(selected_company_name) if selected_company_name else None
 
-
-    # selected_company = None
-    # selected_company_name = None
-
-    # if company_name and company_name in datas_ativos.get(broker_name, {}):
-    #     selected_company = datas_ativos[broker_name][company_name]
-    #     selected_company_name = company_name
-
-    # if not selected_company:
-    #     companies = datas_ativos.get(broker_name, {})
-    #     if companies:
-    #         first_item = sorted(companies.items())[0]
-    #         selected_company_name = first_item[0]
-    #         selected_company = companies[selected_company_name]
 
     return render_template(
         'investments.html',

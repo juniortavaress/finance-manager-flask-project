@@ -12,8 +12,8 @@
 
             <div class="investment-content-grid">
                 {% set items = [
-                    {"label": "Aportes", "icon": "savings", "value": formatted_summary.get(section, {}).get("deposit", 0)},
-                    {"label": "Investido", "icon": "trending_up", "value": formatted_summary.get(section, {}).get("current_invested", 0)},
+                    {"label": "Aportes", "icon": "savings", "value": formatted_summary.get(section, {}).get("contributions", 0)},
+                    {"label": "Investido", "icon": "trending_up", "value": formatted_summary.get(section, {}).get("invested", 0)},
                     {"label": "Caixa", "icon": "account_balance_wallet", "value": formatted_summary.get(section, {}).get("cash", 0)},
                     {"label": "Lucro", "icon": "show_chart", "value": formatted_summary.get(section, {}).get("profit", 0)}
                 ] %}
@@ -34,8 +34,6 @@
 
 
 <section id="investment-chart">
-
-
     <div id="chart01" class="graph">
         <div class="header-graph">
             <div class="title-graph">Wallet</div>

@@ -6,7 +6,7 @@ from datetime import datetime
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.insert(0, parent_dir)
 from app import create_app, database as db
-from app.models import Transaction, Contribution, EuroIncomesAndExpenses, PersonalTradeStatement, CompanyDatas, RealIncomesAndExpenses, User, Assets, UserTradeSummary,UserDividents
+from app.models import  UserTradeSummary
 
 app = create_app()
 

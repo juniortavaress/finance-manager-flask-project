@@ -10,7 +10,7 @@ from app.finance_tools.market_data.update_databases import UpdateDatabases
 app = create_app()
 
 def start_scheduler():
-    atualize_db()
+    # atualize_db()
     
     scheduler = BackgroundScheduler()
     scheduler.add_job(atualize_db, 'cron', hour=2, minute=0)

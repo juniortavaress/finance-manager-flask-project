@@ -72,6 +72,6 @@ def delete_transaction(transaction_id):
         else:
             brokerage_key = transaction.description
 
-        UpdateDatabases.update_broker_status(user_id=user_id, target_date=date, brokerage=brokerage_key)
+        UpdateDatabases.update_broker_status(user_id=user_id, target_date=date, brokerage=[brokerage_key])
 
     return redirect(url_for("user.user_homepage", user_id=current_user.id))

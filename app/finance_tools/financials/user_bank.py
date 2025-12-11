@@ -6,15 +6,13 @@ from sqlalchemy import func, extract
 from datetime import date, datetime, date
 
 from app import database as db
-from app.models import EuroIncomesAndExpenses, RealIncomesAndExpenses
+from app.models import Transaction
 
 
 class UserBankFetcher():
     """Class responsible for fetching and calculating user financial data."""
-
-    """ HOMEPAGE """
     @staticmethod
-    def _get_sums_by_model(model, user_id, procedure=None):
+    def _get_sums_by_model(user_id, model, coin_type, procedure=None):
         """
         Returns a tuple (balance, expense, income) for all months and the current month.
         
@@ -24,17 +22,18 @@ class UserBankFetcher():
 
         # General case
         all_months = db.session.query(
-            func.coalesce(func.sum(model.amount).filter(model.type == "Expense"), 0),
-            func.coalesce(func.sum(model.amount).filter(model.type == "Income"), 0)
-        ).filter(model.user_id == user_id).one()
+            func.coalesce(func.sum(model.value).filter(model.type == "Expense"), 0),
+            func.coalesce(func.sum(model.value).filter(model.type == "Income"), 0)
+        ).filter(model.user_id == user_id, model.coin_type == coin_type).one()
 
         current_month = db.session.query(
-            func.coalesce(func.sum(model.amount).filter(model.type == "Expense"), 0),
-            func.coalesce(func.sum(model.amount).filter(model.type == "Income"), 0)
+            func.coalesce(func.sum(model.value).filter(model.type == "Expense"), 0),
+            func.coalesce(func.sum(model.value).filter(model.type == "Income"), 0)
         ).filter(
             extract("month", model.date) == today.month,
             extract("year", model.date) == today.year,
-            model.user_id == user_id
+            model.user_id == user_id,
+            model.coin_type == coin_type
         ).one()
 
         balance = all_months[1] - all_months[0]
@@ -44,15 +43,14 @@ class UserBankFetcher():
         return balance, expense, income
 
 
-
     @staticmethod
     def get_home_page_data(user_id):
         """
         Aggregates data for the home page: balances, incomes, expenses, and investments.
         Returns a dictionary with formatted string values.
         """
-        euro_balance, euro_month_expense, euro_month_income = UserBankFetcher._get_sums_by_model(EuroIncomesAndExpenses, user_id)
-        real_balance, real_month_expense, real_month_income = UserBankFetcher._get_sums_by_model(RealIncomesAndExpenses, user_id)
+        euro_balance, euro_month_expense, euro_month_income = UserBankFetcher._get_sums_by_model(user_id, Transaction, coin_type='EUR')
+        real_balance, real_month_expense, real_month_income = UserBankFetcher._get_sums_by_model(user_id, Transaction, coin_type='BRL')
         
         # Format values for display
         values = {
@@ -69,7 +67,6 @@ class UserBankFetcher():
         return values
 
 
-    """ REAL/EURO PAGE """
     @staticmethod
     def get_euro_prices():
         """
@@ -110,7 +107,7 @@ class UserBankFetcher():
 
 
     @staticmethod
-    def get_expenses_by_category(user_id, model):
+    def get_expenses_by_category(user_id, model, coin_type):
         """
         Returns a JSON string with expenses grouped by category and month.
 
@@ -123,9 +120,9 @@ class UserBankFetcher():
                 model.category,
                 extract("year", model.date).label("year"),
                 extract("month", model.date).label("month"),
-                func.sum(model.amount).label("amount")
+                func.sum(model.value).label("amount")
             )
-            .filter(model.type == "Expense", model.user_id == user_id)
+            .filter(model.type == "Expense", model.user_id == user_id, model.coin_type == coin_type)
             .group_by("year", "month", model.category)
             .order_by("year", "month")
         ).all()
@@ -143,27 +140,24 @@ class UserBankFetcher():
 
 
     @staticmethod
-    def get_monthly_incomes_and_expenses(model, user_id):
+    def get_monthly_incomes_and_expenses(user_id, model, coin_type):
         """
         Returns monthly income and expenses along with balance and cumulative balance.
         """
-        year_expr = extract("year", model.date)
-        month_expr = extract("month", model.date)
-
         query = (
             db.session.query(
-                model.type,
-                year_expr.label("year"),
-                month_expr.label("month"),
-                func.sum(model.amount).label("amount")
+                extract("year", model.date).label("year"),
+                extract("month", model.date).label("month"),
+                Transaction.type,
+                func.sum(model.value).label("amount")
             )
-            .filter(model.user_id == user_id)
-            .group_by(year_expr, month_expr, model.type)
-            .order_by(year_expr, month_expr)
+            .filter(model.user_id == user_id, model.coin_type == coin_type)
+            .group_by("year", "month", model.category)
+            .order_by("year", "month")
         ).all()
 
         results = defaultdict(lambda: defaultdict(dict))
-        for type_, year, month, amount in query:
+        for year, month, type_, amount in query:
             month_str = f"{int(month):02d}/{str(int(year))[-2:]}"
             results[int(year)][month_str][type_] = float(amount)
 
@@ -186,5 +180,4 @@ class UserBankFetcher():
                 }
 
         return years, json.dumps(clean_results)
-    
 

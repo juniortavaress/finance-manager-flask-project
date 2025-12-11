@@ -1,7 +1,7 @@
 import re 
 from datetime import date
 from app import database as db
-from app.models import UserTradeSummary, PersonalTradeStatement, User, CompanyDatas, UserDividents
+from app.models import UserTradeSummary, CriptoDatas, PersonalTradeStatement, User, CompanyDatas, UserDividents
 
 
 class UpdateEquityDatabases:
@@ -106,7 +106,6 @@ class UpdateEquityDatabases:
                     dividend=total_dividends
                 )
                 db.session.add(summary)
-            # UpdateEquityDatabases._atualize(user_id, trade, price_date)
         db.session.commit()
 
 
@@ -181,7 +180,11 @@ class UpdateEquityDatabases:
         ).order_by(PersonalTradeStatement.date).all()
 
         # Load all prices
-        prices = db.session.query(CompanyDatas).filter_by(company=trade.ticker).order_by(CompanyDatas.date).all()
+        if trade.investment_type == "cripto":
+            print(trade.ticker[:3])
+            prices = db.session.query(CriptoDatas).filter_by(coin=trade.ticker[:3]).order_by(CriptoDatas.date).all()
+        else:
+            prices = db.session.query(CompanyDatas).filter_by(company=trade.ticker).order_by(CompanyDatas.date).all()
         
         dividends = db.session.query(UserDividents).filter_by(user_id=user_id, ticker=trade.ticker).all()
 

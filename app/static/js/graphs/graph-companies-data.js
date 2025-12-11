@@ -6,7 +6,7 @@ document.addEventListener("DOMContentLoaded", () => {
   try{
     const ctx = getChartContext('investmentChartNu');
     const dataRaw = loadJsonData('company-history');
-    const datas = dataRaw.map(d => ({ ...d, price_total: d.invested * d.quantity }));
+    const datas = dataRaw.map(d => ({ ...d, price_total_invested: d.invested * d.quantity, price_total_current: d.current_invested * d.quantity }));
     
     let chart
     
@@ -17,7 +17,8 @@ document.addEventListener("DOMContentLoaded", () => {
       const metricsLabels = {
         current_invested: "Preço Atual",
         invested: "Preço Médio",
-        price_total: "Preço Total",
+        price_total_invested: "Preço Total Investido",
+        price_total_current: "Preço Total Atual",
         dividends: "Dividendos",
         profit: "Lucro",
         quantity: "Número de Ativos",

@@ -46,42 +46,30 @@ class Transaction(db.Model):
     value = db.Column(db.Float, nullable=False)
 
     contributions = db.relationship('Contribution', back_populates='transaction', cascade="all, delete-orphan")
-    euroIncomesAndExpenses = db.relationship('EuroIncomesAndExpenses', back_populates='transaction', cascade="all, delete-orphan")
-    realIncomesAndExpenses = db.relationship('RealIncomesAndExpenses', back_populates='transaction', cascade="all, delete-orphan")
+    # incomesAndExpenses = db.relationship('IncomesAndExpenses', back_populates='transaction', cascade="all, delete-orphan")
 
     def __repr__(self):
         return f'<Transaction {self.description}>'
 
 
-# -------------------- Income and Expense Models --------------------
-class EuroIncomesAndExpenses(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    transaction_id = db.Column(db.Integer, db.ForeignKey('transaction.id'), nullable=False)
-    date = db.Column(db.Date, nullable=False, default=datetime.utcnow)
-    type = db.Column(db.String(10), nullable=False)
-    category = db.Column(db.String(50), nullable=False)
-    amount = db.Column(db.Float, nullable=False)
 
-    transaction = db.relationship('Transaction', back_populates='euroIncomesAndExpenses')
+# class IncomesAndExpenses(db.Model):
+#     id = db.Column(db.Integer, primary_key=True)
+#     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+#     transaction_id = db.Column(db.Integer, db.ForeignKey('transaction.id'), nullable=False)
+#     date = db.Column(db.Date, nullable=False, default=datetime.utcnow)
+#     type = db.Column(db.String(10), nullable=False)
+#     category = db.Column(db.String(50), nullable=False)
+#     amount = db.Column(db.Float, nullable=False)
+#     coin_type = db.Column(db.String(10), nullable=False)
 
-    def __repr__(self):
-        return f'<EuroEntry {self.type} {self.amount}>'
+#     transaction = db.relationship('Transaction', back_populates='incomesAndExpenses')
+
+#     def __repr__(self):
+#         return f'<EuroEntry {self.type} {self.amount}>'
 
 
-class RealIncomesAndExpenses(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    transaction_id = db.Column(db.Integer, db.ForeignKey('transaction.id'), nullable=False)
-    date = db.Column(db.Date, nullable=False, default=datetime.utcnow)
-    type = db.Column(db.String(10), nullable=False)
-    category = db.Column(db.String(50), nullable=False)
-    amount = db.Column(db.Float, nullable=False)
 
-    transaction = db.relationship('Transaction', back_populates='realIncomesAndExpenses')
-
-    def __repr__(self):
-        return f'<RealEntry {self.type} {self.amount}>'
     
 
 # -------------------- Investment Models --------------------

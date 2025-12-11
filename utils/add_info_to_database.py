@@ -7,7 +7,7 @@ from collections import defaultdict
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.insert(0, parent_dir)
 from app import create_app, database as db
-from app.models import Transaction, Contribution, EuroIncomesAndExpenses, Assets, User, PersonalTradeStatement, BrokerStatus, RealIncomesAndExpenses, UserTradeSummary, UserDividents
+from app.models import Transaction, Contribution, CompanyDatas, Assets, User, PersonalTradeStatement, BrokerStatus, UserTradeSummary, UserDividents
 
 app = create_app()
 
@@ -17,6 +17,7 @@ def add_transaction_from_dict(data):
     category = data['category']
     type_ = data['type']
     coin_type = data['coin']
+
 
     try:
         value = float(data['value'])
@@ -62,30 +63,7 @@ def add_transaction_from_dict(data):
         )
         db.session.add(new_contribution)
 
-    # Se for Euro
-    if coin_type.lower() == "euro":
-        new_euro_information = EuroIncomesAndExpenses(
-            user_id=user_id,
-            transaction=new_transaction,
-            date=new_transaction.date,
-            type=type_,
-            category=category,
-            amount=new_transaction.value
-        )
-        db.session.add(new_euro_information)
-
-    # Se for Real
-    if coin_type.lower() == "real":
-        new_real_information = RealIncomesAndExpenses(
-            user_id=user_id,
-            transaction=new_transaction,
-            date=new_transaction.date,
-            type=type_,
-            category=category,
-            amount=new_transaction.value
-        )
-        db.session.add(new_real_information)
-
+   
     try:
         db.session.commit()
         print(f"Transação adicionada: {data['description']} - {data['date']}")
@@ -133,13 +111,13 @@ def add_dividend(user_id=1):
 
 
 def delete():
-    deleted = (
-        db.session.query(User)
-        .filter(
-            User.id == 1,
-        )
-        .delete(synchronize_session=False)
-    )
+    # deleted = (
+    #     db.session.query(User)
+    #     .filter(
+    #         User.id == 1,
+    #     )
+    #     .delete(synchronize_session=False)
+    # )
 
     deleted = (
         db.session.query(PersonalTradeStatement)
@@ -148,11 +126,16 @@ def delete():
         )
         .delete(synchronize_session=False)
     )
+
     deleted = (
         db.session.query(BrokerStatus)
         .filter(
             BrokerStatus.user_id == 1,
         )
+        .delete(synchronize_session=False)
+    )
+    deleted = (
+        db.session.query(CompanyDatas)
         .delete(synchronize_session=False)
     )
 
@@ -166,19 +149,24 @@ def delete():
     # )
 
 
-    deleted = (
-        db.session.query(Transaction)
-        .filter(
-            Transaction.user_id == 1,
-        )
-        .delete(synchronize_session=False)
-    )
+    # deleted = (
+    #     db.session.query(Transaction)
+    #     .filter(
+    #         Transaction.user_id == 1,
+    #     )
+    #     .delete(synchronize_session=False)
+    # )
 
     deleted = (
         db.session.query(UserTradeSummary)
         .filter(
             UserTradeSummary.user_id == 1,
         )
+        .delete(synchronize_session=False)
+    )
+    deleted = (
+        db.session.query(CompanyDatas)
+
         .delete(synchronize_session=False)
     )
 
@@ -192,6 +180,17 @@ def delete():
     )
 
 
+    cutoff = date(2025, 12, 5)
+
+    # Excluir BrokerStatus do user 1 antes da data especificada
+    # deleted_broker = (
+    # db.session.query(BrokerStatus)
+    #     .filter(
+    #         BrokerStatus.user_id == 1,
+    #         # BrokerStatus.date < cutoff
+    #     )
+    #     .delete(synchronize_session=False)
+    # )
     db.session.commit()
     # print(f"{deleted} registros deletados com sucesso.")
     #    Apaga os registros da PersonalTradeStatement

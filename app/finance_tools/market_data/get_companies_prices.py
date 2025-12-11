@@ -62,7 +62,6 @@ class CompanyPricesFetcher():
 
                 # Validate API response
                 time_series = data.get("Weekly Time Series")
-                # print(data)
 
                 # time_series = data.get("Time Series (Daily)")
                 
@@ -73,11 +72,10 @@ class CompanyPricesFetcher():
                 new_records = []
 
                 # Process each weekly entry
-                cutoff_date = last_date if last_date else asset.start_date
+                cutoff_date = last_date if last_date else (asset.start_date - timedelta(days=10))
                 time_series_dates = []
                 for date_str, values in time_series.items():
                     try:
-                        # print(f'\n\n\n\n\n\nTIME SERIES ({date_str})\n\n', values)
                         date_obj = datetime.strptime(date_str, "%Y-%m-%d").date()
                         if date_obj < cutoff_date:
                             continue
@@ -120,37 +118,34 @@ class CompanyPricesFetcher():
         return updated_any
 
 
-
-
     def run_api_crypto_history_prices_brl(tickers=["BTCBRL"], interval="1d"):
         print("Updating crypto prices database...")
         limit = 1000  # max 
         url = "https://api.binance.com/api/v3/klines"
 
         for symbol in tickers:
-            all_data = []
+            asset = Assets.query.filter_by(company=symbol).first()
+            if not asset:
+                print(f"⚠ Asset não encontrado para {symbol}, pulando...")
+                continue
 
-            print(symbol)
+            start_dt = datetime.combine(asset.start_date, datetime.min.time())
+
+            
             last_entry = CriptoDatas.query.filter_by(coin=symbol[:len(symbol)-3], currency=symbol[len(symbol)-3:]).order_by(CriptoDatas.date.desc()).first()
-            last_date = last_entry.date if last_entry else None
+            if last_entry:
+                last_date = last_entry.date if last_entry else None
+                start_dt = last_date - timedelta(days=1)
 
-            start_dt = last_date - timedelta(days=1) if last_date else datetime(2023, 1, 1)
             start_dt = datetime.combine(start_dt, datetime.min.time())
             start_ts = int(start_dt.timestamp() * 1000)
 
-            print("start_dt", start_dt)
+            all_data = []
             while True:
-                params = {
-                    "symbol": symbol,
-                    "interval": interval,
-                    "limit": limit,
-                    "startTime": start_ts
-                }
-
+                params = {"symbol": symbol, "interval": interval, "limit": limit, "startTime": start_ts}
                 response = requests.get(url, params=params)
                 batch = response.json()
 
-                # print("batch size:", batch)
                 if isinstance(batch, dict) and "code" in batch:
                     print("Error Binance:", batch)
                     break
@@ -159,16 +154,10 @@ class CompanyPricesFetcher():
                     break
 
                 all_data.extend(batch)
-
-                # próximo bloco começa depois da última vela retornada
                 last_open_time = batch[-1][0]
                 start_ts = last_open_time + 1
-
-                # Evitar rate limit
                 time.sleep(0.25)
-
-                print("aqui")
-                # Se retornou menos de 1000, acabou o histórico
+                
                 if len(batch) < 1000:
                     break
 
@@ -179,7 +168,6 @@ class CompanyPricesFetcher():
             df["currency"] = symbol[3:]
             df["open_time"] = pd.to_datetime(df["open_time"], unit='ms')
 
-            print(df.tail())
             for _, row in df.iterrows():
                 db.session.query(CriptoDatas).filter_by(coin=row["coin"], currency=row["currency"], date=row["open_time"]).delete()
                 db.session.add(CriptoDatas(date=row["open_time"], coin=row["coin"], currency=row["currency"], current_price=row["close"]))
