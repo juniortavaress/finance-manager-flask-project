@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Setup Your Wallet - My Dashboard</title>
+    <!-- <link rel="stylesheet" href="{{ url_for('static', filename='css/new_user.css') }}"> -->
+    <link rel="stylesheet" href="../static/css/new_user.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    
+</head>
+<body>
+    <div class="setup-container">
+
+        <section class="welcome-section">
+            <h1>Welcome!!</h1>
+            <p>Customize your wallet by adding the currencies you use. You can start investing later by adding investment data.</p>
+        </section>
+
+        <section class="setup-section">
+            <form method="POST" action="{{ url_for('auth.forms') }}">
+                <div id="currencies-container">
+
+                    <div class="currency-option">
+                        <input type="checkbox" id="brl" name="currency[]" value="BRL">
+                        <label for="brl">
+                            <span class="material-symbols-outlined">payments</span>
+                            Real
+                        </label>
+                    </div>
+
+                    <div class="currency-option">
+                        <input type="checkbox" id="usd" name="currency[]" value="USD">
+                        <label for="usd">
+                            <span class="material-symbols-outlined">attach_money</span>
+                            Dólar Americano
+                        </label>
+                    </div>
+
+                    <div class="currency-option">
+                        <input type="checkbox" id="cad" name="currency[]" value="CAD">
+                        <label for="cad">
+                            <span class="material-symbols-outlined">monetization_on</span>
+                            Dólar Canadense
+                        </label>
+                    </div>
+
+                    <div class="currency-option">
+                        <input type="checkbox" id="eur" name="currency[]" value="EUR">
+                        <label for="eur">
+                            <span class="material-symbols-outlined">euro</span>
+                            Euro
+                        </label>
+                    </div>
+
+                    <div class="currency-option">
+                        <input type="checkbox" id="gbp" name="currency[]" value="GBP">
+                        <label for="gbp">
+                            <span class="material-symbols-outlined">currency_pound</span>
+                            Libra Esterlina
+                        </label>
+                    </div>
+
+                    <div class="currency-option">
+                        <input type="checkbox" id="chf" name="currency[]" value="CHF">
+                        <label for="chf">
+                            <span class="material-symbols-outlined">toll</span>
+                            Franco Suíço
+                        </label>
+                    </div>
+
+                    <div class="currency-option">
+                        <input type="checkbox" id="jpy" name="currency[]" value="JPY">
+                        <label for="jpy">
+                            <span class="material-symbols-outlined">currency_yen</span>
+                            Iene Japonês
+                        </label>
+                    </div>
+
+                    <div class="currency-option">
+                        <input type="checkbox" id="cny" name="currency[]" value="CNY">
+                        <label for="cny">
+                            <span class="material-symbols-outlined">currency_yuan</span>
+                            Yuan Chinês
+                        </label>
+                    </div>
+
+                </div>
+
+                <button type="submit" id="save-datas-btn">Save Datas</button>
+            </form>
+        </section>
+
+
+    </div>
+
+    
+</body>
+
+
+</html>

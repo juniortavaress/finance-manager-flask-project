@@ -5,39 +5,48 @@
 {% block page %}
     <div id="content-home">
         
-        <section id="financial-summary">
-        {% for section in [ "incomes", "expenses", "balance"] %}
-            <article class="summary-card">
-                <div class="summary-header">
-                    <span class="material-symbols-outlined">
-                    {% if section == "incomes" %} money_bag
-                    {% elif section == "expenses" %} credit_card
-                    {% elif section == "balance" %} account_balance_wallet
-                    {% endif %}
-                    </span>
-                    <h2 class="summary-title">
-                    {% if section == "incomes" %}Incomes
-                    {% elif section == "expenses" %}Expenses
-                    {% elif section == "balance" %}Balance
-                    {% endif %}
-                    </h2>
-                </div>
-                <div class="summary-content">
+<section id="financial-summary">
+            {% for section in ["incomes", "expenses", "balance"] %}
+                <article class="finance-card-item {{ section }}">
+                    <div class="finance-title-wrapper">
+                        <div class="finance-info-header">
+                            <h2 class="finance-card-title">
+                                {% if section == "incomes" %}Total Incomes
+                                {% elif section == "expenses" %}Total Expenses
+                                {% else %}Current Balance
+                                {% endif %}
+                            </h2>
+                            <span class="finance-card-subtitle">
+                                {% if section in ["incomes", "expenses"] %}Resumo Mensal
+                                {% else %}Resumo Acumulado
+                                {% endif %}
+                            </span>
+                        </div>
+                        <span class="material-symbols-outlined finance-icon-main">
+                            {% if section == "incomes" %}money_bag
+                            {% elif section == "expenses" %}credit_card
+                            {% else %}account_balance_wallet
+                            {% endif %}
+                        </span>
+                    </div>
 
-                    {% if section == "incomes" %}
-                    <div class="summary-data"> € {{ values["euro_income"] }} </div>
-                    <div class="summary-data"> R$ {{ values["real_income"] }} </div>
-                    {% elif section == "expenses" %}
-                    <div class="summary-data"> € {{ values["euro_expense"] }} </div>
-                    <div class="summary-data"> R$ {{ values["real_expense"] }} </div>
-                    {% elif section == "balance" %}
-                    <div class="summary-data"> € {{ values["euro_balance"] }} </div>
-                    <div class="summary-data"> R$ {{ values["real_balance"] }} </div>
-                    {% endif %}
-                </div>
-            </article>
-        {% endfor %}
+                    <div class="finance-values-grid">
+                        {% for code, data in values.items() %}
+                            <div class="finance-currency-row">
+                                <span class="material-symbols-outlined finance-icon-currency">{{ data.icon }}</span>
+                                <div class="finance-currency-info">
+                                    <span class="finance-label">{{ data.name }} ({{ code }})</span>
+                                    <span class="finance-value">
+                                        {{ data.symbol }} {{ data[section] }}
+                                    </span>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </article>
+            {% endfor %}
         </section>
+        
 
 
 
@@ -79,8 +88,9 @@
                 <div class="form-group">
                 <label for="currency">Currency</label>
                 <select class="info" id="currency" name="coin" required>
-                    <option value="BRL">BRL</option>
-                    <option value="EUR">EUR</option>
+                    {% for code in values.keys() %}
+                        <option value="{{ code }}">{{ code }}</option>
+                    {% endfor %}
                 </select>
                 </div>
 
@@ -94,6 +104,7 @@
 
 
         <section id="display-transactions" aria-label="Transaction Table">
+         
             <div id="table-information-container">
                 <table id="transaction-table">
                 <thead>
@@ -115,7 +126,6 @@
                     <td>{{ t.category }}</td>
                     <td>{{ "€" if t.coin_type == "Euro" else "R$" }} {{ "{:,.2f}".format(t.value) }}</td>
                     <td>
-                        <!-- <button class="edit-btn">Edit</button> -->
 
                         <form method="POST" action="{{ url_for('transaction.delete_transaction', transaction_id=t.id) }}" style="display: inline;">
                             <button class="delete-btn">Delete</button>
@@ -132,3 +142,5 @@
     </div>
     
 {% endblock %}
+
+

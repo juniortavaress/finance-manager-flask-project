@@ -1,6 +1,16 @@
 <ul class="nav-links">
     <li><a href="{{ url_for('user.user_homepage', user_id=current_user.id) }}" class="nav-item {% if active_page == 'home' %}active{% endif %}">Home</a></li>
-    <li><a href="{{ url_for('finance.finance', currency='real') }}" class="nav-item {% if active_page == 'finance_real' %}active{% endif %}">Finance (R$)</a></li>
-    <li><a href="{{ url_for('finance.finance', currency='euro') }}" class="nav-item {% if active_page == 'finance_euro' %}active{% endif %}">Finance (€)</a></li>
+
+    {% if current_user.is_authenticated %}
+        {% for uc in current_user.user_currencies %}
+            <li>
+                <a href="{{ url_for('finance.finance', currency=uc.currency.code|lower) }}" 
+                   class="nav-item {% if active_page == 'finance_' ~ uc.currency.code|lower %}active{% endif %}">
+                   Finance ({{ uc.currency.symbol }})
+                </a>
+            </li>
+        {% endfor %}
+    {% endif %}
+
     <li><a href="{{ url_for('finance.investments') }}" class="nav-item {% if active_page == 'investments' %}active{% endif %}">Investments</a></li>
 </ul>

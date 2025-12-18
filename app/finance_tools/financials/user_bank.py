@@ -44,28 +44,46 @@ class UserBankFetcher():
 
 
     @staticmethod
-    def get_home_page_data(user_id):
+    def get_home_page_data(user_id, user_currencies):
         """
         Aggregates data for the home page: balances, incomes, expenses, and investments.
         Returns a dictionary with formatted string values.
         """
-        euro_balance, euro_month_expense, euro_month_income = UserBankFetcher._get_sums_by_model(user_id, Transaction, coin_type='EUR')
-        real_balance, real_month_expense, real_month_income = UserBankFetcher._get_sums_by_model(user_id, Transaction, coin_type='BRL')
+        results = {}
+        for currency_info in user_currencies:
+            code = currency_info.code
+            balance, expense, income = UserBankFetcher._get_sums_by_model(user_id, Transaction, coin_type=code)
+
+            results[code] = {
+                "incomes": UserBankFetcher._format_currency(income),
+                "expenses": UserBankFetcher._format_currency(expense),
+                "balance": UserBankFetcher._format_currency(balance),
+                "symbol": currency_info.symbol,
+                "name": currency_info.name,
+                "icon": currency_info.icon,
+            }
+        # euro_balance, euro_month_expense, euro_month_income = UserBankFetcher._get_sums_by_model(user_id, Transaction, coin_type='EUR')
+        # real_balance, real_month_expense, real_month_income = UserBankFetcher._get_sums_by_model(user_id, Transaction, coin_type='BRL')
         
-        # Format values for display
-        values = {
-            "real_income": real_month_income,
-            "euro_income": euro_month_income,
-            "real_expense": real_month_expense,
-            "euro_expense": euro_month_expense,
-            "real_balance": real_balance,
-            "euro_balance": euro_balance,
-        }
+        # # Format values for display
+        # values = {
+        #     "real_income": real_month_income,
+        #     "euro_income": euro_month_income,
+        #     "real_expense": real_month_expense,
+        #     "euro_expense": euro_month_expense,
+        #     "real_balance": real_balance,
+        #     "euro_balance": euro_balance,
+        # }
 
-        for key in values:
-            values[key] = f"{values[key]:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
-        return values
+        # for key in values:
+        #     values[key] = f"{values[key]:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+        return results
 
+
+    @staticmethod
+    def _format_currency(value):
+        """Método auxiliar para centralizar a formatação brasileira"""
+        return f"{value:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
 
     @staticmethod
     def get_euro_prices():
@@ -148,35 +166,41 @@ class UserBankFetcher():
             db.session.query(
                 extract("year", model.date).label("year"),
                 extract("month", model.date).label("month"),
-                Transaction.type,
+                model.type, # Removido Transaction.type para usar o model passado
                 func.sum(model.value).label("amount")
             )
             .filter(model.user_id == user_id, model.coin_type == coin_type)
-            .group_by("year", "month", model.category)
+            # REMOVIDO model.category do group_by para somar TUDO do mês
+            .group_by("year", "month", model.type) 
             .order_by("year", "month")
         ).all()
 
-        results = defaultdict(lambda: defaultdict(dict))
+        # defaultdict de float para facilitar a soma
+        results = defaultdict(lambda: defaultdict(lambda: defaultdict(float)))
+        
         for year, month, type_, amount in query:
             month_str = f"{int(month):02d}/{str(int(year))[-2:]}"
-            results[int(year)][month_str][type_] = float(amount)
+            # USANDO += em vez de = para garantir que valores sejam somados
+            results[int(year)][month_str][type_] += float(amount)
 
         clean_results = {}
         cumulative_balance = 0
-        years = set()
-        for year, months in results.items():
+        years = sorted(list(results.keys())) # Lista de anos ordenada
+        
+        for year in years:
+            months_data = results[year]
             clean_results[year] = {}
-            years.add(year)
-            for month, data in sorted(months.items()):
+            for month, data in sorted(months_data.items()):
                 income = data.get("Income", 0.0)
                 expense = data.get("Expense", 0.0)
                 balance = income - expense
                 cumulative_balance += balance
+                
                 clean_results[year][month] = {
-                    "Income": income,
-                    "Expense": expense,
-                    "Balance": balance,
-                    "Cumulative_Balance": cumulative_balance
+                    "Income": round(income, 2),
+                    "Expense": round(expense, 2),
+                    "Balance": round(balance, 2),
+                    "Cumulative_Balance": round(cumulative_balance, 2)
                 }
 
         return years, json.dumps(clean_results)

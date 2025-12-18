@@ -6,6 +6,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const uploadForm = document.getElementById("uploadForm");
   const folderSection = document.getElementById("folderSelection");
   const manualSection = document.getElementById("manualSection");
+  const dividendManualSection = document.getElementById("dividendManualSection"); // nova seção
 
   if (!modal || !addBtn || !select || !uploadForm) {
     console.error("Algum elemento do modal não foi encontrado!");
@@ -43,21 +44,28 @@ document.addEventListener("DOMContentLoaded", () => {
     const incomesURL = uploadForm.dataset.uploadIncomesUrl;
     const manualURL = uploadForm.dataset.manualEntryUrl;
 
+    folderSection.style.display = "none";
+    manualSection.style.display = "none";
+    dividendManualSection.style.display = "none";
+    toggleRequired(manualSection, false);
+    toggleRequired(dividendManualSection, false);
+
     if (value === "manual_entry") {
       uploadForm.action = manualURL;
-      folderSection.style.display = "none";
+      // folderSection.style.display = "none";
       manualSection.style.display = "block";
       toggleRequired(manualSection, true);
     } else if (value === "income_database") {
       uploadForm.action = incomesURL;
-      folderSection.style.display = "block";
-      manualSection.style.display = "none";
-      toggleRequired(manualSection, false);
+      // folderSection.style.display = "block";
+      // manualSection.style.display = "none";
+      dividendManualSection.style.display = "block";
+      toggleRequired(dividendManualSection, true);
     } else {
       uploadForm.action = notesURL;
       folderSection.style.display = "block";
-      manualSection.style.display = "none";
-      toggleRequired(manualSection, false);
+      // manualSection.style.display = "none";
+      // toggleRequired(manualSection, false);
     }
   });
 
@@ -73,4 +81,23 @@ document.addEventListener("DOMContentLoaded", () => {
   uploadForm.addEventListener("submit", (e) => {
     console.log("Enviando formulário para:", uploadForm.action);
   });
+
+  // Preencher select de ativos do usuário (exemplo)
+  const userAssets = ["AAPL", "PETR4", "BTC"]; // você deve substituir com dados reais do backend
+  
+  const incomeAssetSelect = document.getElementById("dividend_ticker");
+  if (incomeAssetSelect) {
+    fetch("/user-assets-api")
+        .then(response => response.json())
+        .then(data => {
+          data.assets.forEach(asset => {
+            const opt = document.createElement("option");
+            opt.value = asset;
+            opt.textContent = asset;
+            incomeAssetSelect.appendChild(opt);
+          });
+        })
+        .catch(err => console.error("Erro ao buscar assets:", err));
+
+  }
 });

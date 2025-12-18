@@ -1,17 +1,20 @@
 {% extends "base.html" %}
 
-{% block title %}Finance{% endblock %}
+{% block title %}Finance - {{ currency_code }}{% endblock %}
 
 {% block page %}
-  <!-- JSON Data Injection -->
   <script type="application/json" id="data-pie-chart">{{ datas_category|safe }}</script>
   <script type="application/json" id="data-incomes-expenses">{{ datas_income_expense|safe }}</script>
 
-  <!-- JS Graph Scripts -->
   <script type="module" src="{{ url_for('static', filename='js/graphs/graph-pie-expenses-analysis.js') }}"></script>
   <script type="module" src="{{ url_for('static', filename='js/graphs/graph-bar-incomes-expenses.js') }}"></script>
-  <script type="application/json" id="data-currency-graph">{{ euro_brl|safe }}</script>
-  <script type="module" src="{{ url_for('static', filename='js/graphs/graph-euro-price.js') }}"></script>
+  
+  {# Injeta os dados de cotação apenas se NÃO for Real #}
+  {% if currency_code != 'BRL' %}
+    <script type="application/json" id="data-currency-graph">{{ euro_brl|safe }}</script>
+    <script type="module" src="{{ url_for('static', filename='js/graphs/graph-euro-price.js') }}"></script>
+  {% endif %}
+
 
   <!-- Main Layout -->
   <div id="finance-container">
@@ -45,11 +48,11 @@
     <!-- Right Graphs -->
     <div class="finance-right-section">
 
-      {% if active_page == 'finance_euro' %}
+      {% if currency_code != 'BRL' %}
       <!-- Currency Exchange Chart -->
       <div class="income-expense-card" id="currency-exchange-card">
         <div class="header-graph">
-          <div class="title-graph">Exchange Rate (BRL → EUR)</div>
+          <div class="title-graph">Exchange Rate (BRL → {{ currency_code }})</div>
         </div>
         <div class="graph-container">
           <canvas id="chart-brl-eur"></canvas>

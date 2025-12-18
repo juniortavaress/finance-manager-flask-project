@@ -1,9 +1,10 @@
 import json
-from flask import request
+from flask import request, jsonify
 from flask import Blueprint, render_template
 from flask_login import login_required, current_user
 from app.finance_tools import UserInvestmentsFetcher, UserBankFetcher, GraphAux
-from app.models import Transaction
+from app.models import Transaction, Assets
+from app import bcrypt, database as db
 
 from flask import redirect, url_for
 
@@ -12,17 +13,13 @@ finance_bp = Blueprint('finance', __name__)
 @finance_bp.route('/finance/<currency>')
 @login_required
 def finance(currency):
-    # Define o modelo e dados de acordo com a moeda
-    if currency == 'euro':
-        _, euro_real_data = UserBankFetcher.get_euro_prices()
-        coin_type = 'EUR'
-        active_page = 'finance_euro'
-        exchange_rate = euro_real_data
-    elif currency == 'real':
-        _, euro_real_data = UserBankFetcher.get_euro_prices()
-        coin_type = 'BRL'
-        active_page = 'finance_real'
-        exchange_rate = euro_real_data
+    currency_url = currency.lower()
+    coin_type = currency.upper()
+
+    _, euro_real_data = UserBankFetcher.get_euro_prices()
+    exchange_rate = euro_real_data
+
+    active_page = f'finance_{currency_url}'
 
     # model = Transaction.query.filter_by(coin_type=coin_type)
     years, income_expense_data = UserBankFetcher.get_monthly_incomes_and_expenses(current_user.id, Transaction, coin_type)
@@ -35,7 +32,8 @@ def finance(currency):
         months=months,
         years=years,
         euro_brl=exchange_rate,
-        active_page=active_page
+        active_page=active_page,
+        currency_code=coin_type
     )
 
 
@@ -92,3 +90,10 @@ def render_investment_page(broker_name: str, invest_type: str):
         broker_name=broker_name,
         invest_type=invest_type   
     )
+
+
+@finance_bp.route('/user-assets-api')
+def user_assets_api():
+    assets = db.session.query(Assets.company).filter_by(user_id=current_user.id).all()
+    assets = [a[0] for a in assets]
+    return jsonify({"assets": assets})

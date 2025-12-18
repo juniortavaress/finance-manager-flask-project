@@ -110,31 +110,31 @@ class UpdateEquityDatabases:
 
 
         
-    @staticmethod
-    def _calculate_broker_invested_value(user_id, brokerage, target_date, trade=None):
-        summaries = (
-            db.session.query(UserTradeSummary)
-            .filter(
-                UserTradeSummary.user_id == user_id,
-                UserTradeSummary.brokerage == brokerage,
-                UserTradeSummary.date <= target_date
-            )
-            .order_by(UserTradeSummary.company, UserTradeSummary.date.desc())
-            .all()
-        )
+    # @staticmethod
+    # def _calculate_broker_invested_value(user_id, brokerage, target_date, trade=None):
+    #     summaries = (
+    #         db.session.query(UserTradeSummary)
+    #         .filter(
+    #             UserTradeSummary.user_id == user_id,
+    #             UserTradeSummary.brokerage == brokerage,
+    #             UserTradeSummary.date <= target_date
+    #         )
+    #         .order_by(UserTradeSummary.company, UserTradeSummary.date.desc())
+    #         .all()
+    #     )
 
-        last_by_company = {}
-        for s in summaries:
-            if s.company not in last_by_company:
-                last_by_company[s.company] = s
+    #     last_by_company = {}
+    #     for s in summaries:
+    #         if s.company not in last_by_company:
+    #             last_by_company[s.company] = s
 
-        total_invested_value = sum(s.quantity * s.current_price for s in last_by_company.values())
+    #     total_invested_value = sum(s.quantity * s.current_price for s in last_by_company.values())
 
-        # Se trade é do mesmo dia e não tem summary ainda, adiciona ele
-        if trade and (trade.date == target_date):
-            total_invested_value += trade.quantity * trade.unit_price
+    #     # Se trade é do mesmo dia e não tem summary ainda, adiciona ele
+    #     if trade and (trade.date == target_date):
+    #         total_invested_value += trade.quantity * trade.unit_price
 
-        return total_invested_value
+    #     return total_invested_value
 
     @staticmethod
     def _calculate_avg_price(user_id, price, ticker):

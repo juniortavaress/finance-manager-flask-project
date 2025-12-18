@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Setup Your Wallet - My Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/login_page.css') }}">
+    <style>
+        /* Custom styles for this page */
+        .setup-container {
+            display: flex;
+            width: 900px;
+            max-width: 90%;
+            background: #ffffff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .welcome-section {
+            flex: 1;
+            background: linear-gradient(135deg, #6a11cb, #26263e);
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .welcome-section h1 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+        }
+
+        .welcome-section p {
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+
+        .setup-section {
+            flex: 1;
+            padding: 50px 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .setup-section h2 {
+            font-size: 2rem;
+            margin-bottom: 30px;
+            color: #333;
+            text-align: center;
+        }
+
+        #currencies-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .currency-item {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .currency-item input[type="text"] {
+            flex: 1;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+        }
+
+        .icon-selector {
+            padding: 10px 15px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            cursor: pointer;
+            background: #f0f0f0;
+        }
+
+        .icons-popup {
+            position: absolute;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            padding: 10px;
+            background: #fff;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            max-width: 300px;
+            margin-top: 5px;
+            z-index: 100;
+        }
+
+        .icons-popup span {
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 6px;
+            transition: background 0.2s;
+        }
+
+        .icons-popup span:hover {
+            background: #2575fc;
+            color: white;
+        }
+
+        .btn-submit, #add-currency-btn {
+            padding: 12px;
+            background-color: #2575fc;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+
+        .btn-submit:hover, #add-currency-btn:hover {
+            background-color: #6a11cb;
+        }
+
+        .investments-section {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 20px;
+            font-size: 1rem;
+        }
+
+        .info-text {
+            margin-top: 10px;
+            font-size: 0.9rem;
+            color: #555;
+        }
+
+        @media (max-width: 768px) {
+            .setup-container {
+                flex-direction: column;
+            }
+
+            .welcome-section {
+                padding: 30px;
+            }
+
+            .setup-section {
+                padding: 30px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="setup-container">
+        <section class="welcome-section">
+            <h1>Welcome!!</h1>
+            <p>Customize your wallet by adding the currencies you use and selecting an icon for each. You can start investing later by adding investment data.</p>
+        </section>
+
+        <section class="setup-section">
+            <h2>Setup Your Wallet</h2>
+            <form method="POST" action="{{ url_for('user.setup_wallet') }}">
+                <div id="currencies-container">
+                    <div class="currency-item">
+                        <input type="text" name="currency_name[]" placeholder="Currency Name" required>
+                        <div class="icon-selector" onclick="toggleIcons(this)">Select Icon</div>
+                        <input type="hidden" name="currency_icon[]">
+                        <div class="icons-popup" style="display:none;">
+                            <span class="material-symbols-outlined" onclick="selectIcon(this, 'paid')">paid</span>
+                            <span class="material-symbols-outlined" onclick="selectIcon(this, 'euro')">euro</span>
+                            <span class="material-symbols-outlined" onclick="selectIcon(this, 'attach_money')">attach_money</span>
+                            <span class="material-symbols-outlined" onclick="selectIcon(this, 'currency_bitcoin')">currency_bitcoin</span>
+                            <span class="material-symbols-outlined" onclick="selectIcon(this, 'savings')">savings</span>
+                        </div>
+                        <button type="button" onclick="removeCurrency(this)">Remove</button>
+                    </div>
+                </div>
+
+                <button type="button" id="add-currency-btn" onclick="addCurrency()">Add Currency</button>
+
+                <div class="investments-section">
+                    <input type="checkbox" name="investments_enabled" id="investments_enabled">
+                    <label for="investments_enabled">Enable Investments</label>
+                </div>
+
+                <div class="info-text">
+                    You can start investing later by adding investment data.
+                </div>
+
+                <button type="submit" class="btn-submit">Save Wallet</button>
+            </form>
+        </section>
+    </div>
+
+    <script>
+        function toggleIcons(el) {
+            const popup = el.nextElementSibling;
+            popup.style.display = popup.style.display === 'none' ? 'flex' : 'none';
+        }
+
+        function selectIcon(el, icon) {
+            const hiddenInput = el.closest('.currency-item').querySelector('input[type="hidden"]');
+            hiddenInput.value = icon;
+            el.closest('.icons-popup').style.display = 'none';
+            el.closest('.currency-item').querySelector('.icon-selector').textContent = icon;
+        }
+
+        function addCurrency() {
+            const container = document.getElementById('currencies-container');
+            const newItem = container.children[0].cloneNode(true);
+            newItem.querySelector('input[type="text"]').value = '';
+            newItem.querySelector('input[type="hidden"]').value = '';
+            newItem.querySelector('.icon-selector').textContent = 'Select Icon';
+            newItem.querySelector('.icons-popup').style.display = 'none';
+            container.appendChild(newItem);
+        }
+
+        function removeCurrency(btn) {
+            const container = document.getElementById('currencies-container');
+            if (container.children.length > 1) {
+                btn.closest('.currency-item').remove();
+            }
+        }
+    </script>
+</body>
+</html>

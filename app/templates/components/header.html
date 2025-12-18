@@ -56,6 +56,28 @@
           <span>Click here to select a folder</span>
         </label>
       </div>
+      
+      <!-- NOVA: Seção manual de Rendimentos -->
+      <div id="dividendManualSection" class="form-section" style="display: none;">
+        <div class="manual-form-grid">
+          <div class="form-group">
+            <label for="dividend_date">Data do rendimento</label>
+            <input type="date" name="dividend_date" id="dividend_date">
+          </div>
+
+          <div class="form-group">
+            <label for="dividend_ticker">Ativo</label>
+            <select name="dividend_ticker" id="dividend_ticker">
+              <!-- Javascript preencherá as opções com os ativos que o usuário tem -->
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="dividend_amount">Valor do dividendo (R$)</label>
+            <input type="number" name="dividend_amount" id="dividend_amount" step="any">
+          </div>
+        </div>
+      </div>
 
       <!-- Seção manual -->
       <div id="manualSection" class="form-section" style="display: none;">

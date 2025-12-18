@@ -2,7 +2,7 @@ from flask import Blueprint, request, redirect, url_for
 from flask_login import login_required, current_user
 
 from app import database as db
-from app.services import process_trade_statements, process_manually_input
+from app.services import process_trade_statements, process_manually_input, process_dividends
 
 upload_bp = Blueprint('upload', __name__)
 
@@ -23,11 +23,18 @@ def manual_entry():
 
 """AQUI RENDIMENTOS"""
 @upload_bp.route('/upload_incomes', methods=['POST'])
+@login_required
 def upload_incomes():
-    """Importa base de dados de rendimentos (arquivos, pode ter subpastas)."""
-    files = request.files.getlist('files')
-    for file in files:
-        print("Importing income file:", file.filename)
+    # Para pegar campos do formulário
+    dividend_date = request.form.get('dividend_date')
+    dividend_ticker = request.form.get('dividend_ticker')
+    dividend_amount = request.form.get('dividend_amount')
+    print("Data:", dividend_date)
+    print("Ativo:", dividend_ticker)
+    print("Valor:", dividend_amount)
+
+    process_dividends(current_user.id, dividend_date, dividend_ticker, dividend_amount)
+
     return redirect(url_for('finance.investments'))
 
 

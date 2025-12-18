@@ -119,25 +119,25 @@ def delete():
     #     .delete(synchronize_session=False)
     # )
 
-    deleted = (
-        db.session.query(PersonalTradeStatement)
-        .filter(
-            PersonalTradeStatement.user_id == 1,
-        )
-        .delete(synchronize_session=False)
-    )
+    # deleted = (
+    #     db.session.query(PersonalTradeStatement)
+    #     .filter(
+    #         PersonalTradeStatement.user_id == 1,
+    #     )
+    #     .delete(synchronize_session=False)
+    # )
 
-    deleted = (
-        db.session.query(BrokerStatus)
-        .filter(
-            BrokerStatus.user_id == 1,
-        )
-        .delete(synchronize_session=False)
-    )
-    deleted = (
-        db.session.query(CompanyDatas)
-        .delete(synchronize_session=False)
-    )
+    # deleted = (
+    #     db.session.query(BrokerStatus)
+    #     .filter(
+    #         BrokerStatus.user_id == 1,
+    #     )
+    #     .delete(synchronize_session=False)
+    # )
+    # deleted = (
+    #     db.session.query(CompanyDatas)
+    #     .delete(synchronize_session=False)
+    # )
 
     
     # db.session.query(BrokerStatus).filter(
@@ -157,30 +157,30 @@ def delete():
     #     .delete(synchronize_session=False)
     # )
 
-    deleted = (
-        db.session.query(UserTradeSummary)
-        .filter(
-            UserTradeSummary.user_id == 1,
-        )
-        .delete(synchronize_session=False)
-    )
-    deleted = (
-        db.session.query(CompanyDatas)
+    # deleted = (
+    #     db.session.query(UserTradeSummary)
+    #     .filter(
+    #         UserTradeSummary.user_id == 1,
+    #     )
+    #     .delete(synchronize_session=False)
+    # )
+    # deleted = (
+    #     db.session.query(CompanyDatas)
 
-        .delete(synchronize_session=False)
-    )
-
-
-    deleted = (
-        db.session.query(Assets)
-        .filter(
-            Assets.user_id == 1,
-        )
-        .delete(synchronize_session=False)
-    )
+    #     .delete(synchronize_session=False)
+    # )
 
 
-    cutoff = date(2025, 12, 5)
+    # deleted = (
+    #     db.session.query(Assets)
+    #     .filter(
+    #         Assets.user_id == 1,
+    #     )
+    #     .delete(synchronize_session=False)
+    # )
+
+
+    # cutoff = date(2025, 12, 5)
 
     # Excluir BrokerStatus do user 1 antes da data especificada
     # deleted_broker = (
@@ -191,6 +191,16 @@ def delete():
     #     )
     #     .delete(synchronize_session=False)
     # )
+    deleted = (
+        db.session.query(Transaction)
+        .filter(
+            Transaction.user_id == 1,
+        )
+        .delete(synchronize_session=False)
+    )
+
+
+
     db.session.commit()
     # print(f"{deleted} registros deletados com sucesso.")
     #    Apaga os registros da PersonalTradeStatement

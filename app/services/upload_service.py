@@ -1,8 +1,30 @@
-from app.models import Assets, PersonalTradeStatement
+from app.models import Assets, PersonalTradeStatement, UserDividents
 from app.finance_tools import CompanyPricesFetcher, UpdateDatabases, ManagerNotesExtractor
 
 from datetime import datetime
 from app import database as db
+
+def process_dividends(user_id, dividend_date, dividend_ticker, dividend_amount):
+    print("process_dividends")
+
+    dividend_date_obj = datetime.strptime(dividend_date, "%Y-%m-%d").date()
+    existing = db.session.query(UserDividents).filter_by(user_id=user_id, ticker=dividend_ticker, date=dividend_date_obj, value=dividend_amount).first()
+    
+    if existing:
+        print("Dividend already exists, skipping.")
+        return existing
+    
+    dividend = UserDividents(
+        user_id=user_id,
+        ticker=dividend_ticker,
+        date=datetime.strptime(dividend_date, "%Y-%m-%d").date(),
+        value=float(dividend_amount)
+    )
+
+    db.session.add(dividend)
+    db.session.commit()
+    print('Dividend processed successfully')
+
 
 def process_trade_statements(files, user_id):
     print("process_trade_statements")

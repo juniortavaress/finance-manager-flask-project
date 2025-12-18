@@ -22,7 +22,8 @@ class User(db.Model, UserMixin):
     dividends = db.relationship('UserDividents', back_populates='user', cascade="all, delete-orphan")
     trade_summaries = db.relationship('UserTradeSummary', back_populates='user', cascade="all, delete-orphan")
     broker_status = db.relationship('BrokerStatus', back_populates='user', cascade="all, delete-orphan")
-    
+    user_currencies = db.relationship('UserCurrency', back_populates='user', cascade="all, delete-orphan")
+
     def set_password(self, password):
         self.password = generate_password_hash(password).decode('utf8')
     
@@ -53,20 +54,6 @@ class Transaction(db.Model):
 
 
 
-# class IncomesAndExpenses(db.Model):
-#     id = db.Column(db.Integer, primary_key=True)
-#     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-#     transaction_id = db.Column(db.Integer, db.ForeignKey('transaction.id'), nullable=False)
-#     date = db.Column(db.Date, nullable=False, default=datetime.utcnow)
-#     type = db.Column(db.String(10), nullable=False)
-#     category = db.Column(db.String(50), nullable=False)
-#     amount = db.Column(db.Float, nullable=False)
-#     coin_type = db.Column(db.String(10), nullable=False)
-
-#     transaction = db.relationship('Transaction', back_populates='incomesAndExpenses')
-
-#     def __repr__(self):
-#         return f'<EuroEntry {self.type} {self.amount}>'
 
 
 
@@ -210,3 +197,37 @@ class BrokerStatus(db.Model):
     def __repr__(self):
         return (f"<BrokerStatus {self.brokerage} invested={self.invested_value} "
                 f"contributions={self.total_contributions} cash={self.cash} profit={self.profit_loss}>")
+
+
+
+
+
+
+class Currency(db.Model):
+    __tablename__ = "currency"
+
+    id = db.Column(db.Integer, primary_key=True)
+    code = db.Column(db.String(5), unique=True, nullable=False)
+    name = db.Column(db.String(50), nullable=False)
+    icon = db.Column(db.String(50), nullable=False)
+    symbol = db.Column(db.String(10), nullable=False)
+    users = db.relationship(
+        "UserCurrency",
+        back_populates="currency",
+        cascade="all, delete-orphan"
+    )
+
+class UserCurrency(db.Model):
+    __tablename__ = "user_currency"
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    currency_id = db.Column(db.Integer, db.ForeignKey("currency.id"), nullable=False)
+
+    user = db.relationship("User", back_populates="user_currencies")
+    currency = db.relationship("Currency", back_populates="users")
+
+    __table_args__ = (
+        db.UniqueConstraint("user_id", "currency_id", name="uq_user_currency"),
+    )
+

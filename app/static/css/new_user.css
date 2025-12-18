@@ -1,0 +1,125 @@
+
+/* Reset e tipografia */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Roboto', sans-serif;
+}
+
+body {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(180deg, #6812c6, #373752);
+    color: #333;
+}
+
+.setup-container {
+    display: flex;
+    width: 900px;
+    max-width: 90%;
+    min-height: 50%;
+    background: #ffffff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+
+.welcome-section {
+    flex: 1;
+    background: linear-gradient(135deg, #6a11cb, #26263e);
+    color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px;
+    flex-direction: column;
+    text-align: center;
+}
+
+.welcome-section h1 {
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+}
+
+.welcome-section p {
+    font-size: 1rem;
+    line-height: 1.5;
+}
+
+.setup-section {
+    flex: 1;
+    padding: 50px 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.setup-section h2 {
+    font-size: 2rem;
+    margin-bottom: 30px;
+    color: #333;
+    text-align: center;
+}
+
+#currencies-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+
+#save-datas-btn {
+    padding: 12px;
+    background-color: #2575fc;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s;
+    margin-top: 10px;
+}
+
+#save-datas-btn:hover {
+    background-color: #6a11cb;
+}
+
+
+@media (max-width: 768px) {
+    .setup-container {
+        flex-direction: column;
+    }
+
+    .welcome-section {
+        padding: 30px;
+    }
+
+    .setup-section {
+        padding: 30px 20px;
+    }
+}
+
+/* Container das Moedas (GRID BOX) */
+#currencies-container {
+    display: grid;
+    /* Define colunas que se ajustam automaticamente, cabendo entre 180px e 1fr (fraction) */
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 10px; /* Espaço entre os itens (células do grid) */
+    margin-bottom: 20px;
+    /* Remove a necessidade de 'justify-content: center;' pois o grid fará isso */
+}
+
+/* Opcional: Ajustar o estilo do Label para se encaixar melhor no Grid */
+.currency-option + label {
+    /* Garante que o label preencha toda a área do grid */
+    width: 100%; 
+    justify-content: center; /* Centraliza o conteúdo (ícone e texto) dentro da célula */
+    text-align: center;
+    /* Mantém os outros estilos: padding, border-radius, cores, etc. */
+}

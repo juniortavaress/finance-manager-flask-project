@@ -1,6 +1,5 @@
 import re
 import fitz  
-from .xp_extractor import XpExtractor
 from .nu_extractor import NuExtractor
 from .nomad_extractor import NomadExtractor
 
@@ -40,7 +39,7 @@ class ManagerNotesExtractor:
         elif broker == "Nomad":
             trades = NomadExtractor.get_info_from_nomad(filename.filename, file, user_id)
         elif broker == "Xp Invest":
-            XpExtractor.get_info_from_xp(filename, file, user_id)
+            pass
         return trades
 
 

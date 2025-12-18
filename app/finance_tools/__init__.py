@@ -11,7 +11,7 @@ All main classes and functions are re-exported here for simplified imports.
 
 # Import main classes from subpackages for easy access
 from .financials import UserInvestmentsFetcher, UserBankFetcher, GraphAux
-from .trade_notes_extraction import ManagerNotesExtractor, NomadExtractor, NuExtractor, XpExtractor
+from .trade_notes_extraction import ManagerNotesExtractor, NomadExtractor, NuExtractor
 from .market_data import CompanyPricesFetcher, UpdateDatabases
 
 # Define public interface of the package
@@ -21,7 +21,6 @@ __all__ = [
     "ManagerNotesExtractor",
     "NomadExtractor",
     "NuExtractor",
-    "XpExtractor",
     "CompanyPricesFetcher",
     "UpdateDatabases",
     "GraphAux"
