@@ -5,8 +5,6 @@
 {% block navbar %}{% include "components/navbar_invest.html" %}{% endblock %}
 
 {% block page %}
-    
-    
     <div class="content-view" id="content-investments"> 
         {% if invest_type == 'home_invest' %}
             <script type="application/json" id="historic_by_broker"> {{ summary_by_brokerage|safe }} </script>
@@ -19,8 +17,6 @@
             <script type="application/json" id="company-history">{{ selected_company|tojson }}</script>
             <script type="module" src="{{ url_for('static', filename='js/graphs/graph-companies-data.js') }}"></script>
             {% include "investments/broker.html" %}
-        
         {% endif %}
     </div>
-    
 {% endblock %}

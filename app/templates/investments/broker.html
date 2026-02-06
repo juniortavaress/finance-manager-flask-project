@@ -1,4 +1,5 @@
 {% macro render_investments(title, companies) %}
+    {% set symbol = "$" if broker_name|lower == "nomad" else "R$" %}
     {% if companies %}
         <h3>{{ title }}</h3>
         <div class="investments-grid">
@@ -19,12 +20,12 @@
 
                     <div class="investment-content-grid">
                         {% set items = [
-                            {"label": "Número de cotas", "icon": "grid_view", "value": latest.quantity}, 
-                            {"label": "Preço médio (R$)", "icon": "price_check", "value": latest.invested},
-                            {"label": "Preço atual (R$)", "icon": "trending_up", "value": latest.current_invested},
-                            {"label": "Dividendos (R$)", "icon": "payments", "value": latest.dividends},
-                            {"label": "Lucro (R$)", "icon": "show_chart", "value": latest.profit},
-                            {"label": "Rendimento (%)", "icon": "insights", "value": latest.profitability }
+                            {"label": "Number of Shares", "icon": "grid_view", "value": latest.quantity}, 
+                            {"label": "Dividends (" ~ symbol ~ ")", "icon": "payments", "value": latest.dividends},
+                            {"label": "Total Invested (" ~ symbol ~ ")", "icon": "price_check", "value": latest.price_total_invested},
+                            {"label": "Current Value (" ~ symbol ~ ")", "icon": "trending_up", "value": latest.price_total_current},
+                            {"label": "Profit (" ~ symbol ~ ")", "icon": "show_chart", "value": latest.profit},
+                            {"label": "Profitability (%)", "icon": "insights", "value": latest.profitability }
                         ] %}
                         {% for item in items %}
                             <div class="companies-grid-item">
@@ -32,8 +33,7 @@
                                 <div class="investment-info">
                                     <span class="investment-label">{{ item.label }}</span>
                                     <span class="investment-value">
-                                        {% if item.label == "Número de cotas" %}{{ item.value }}
-                                        {% else %}{{ "%.2f"|format(item.value) }}{% endif %}
+                                        {{ "%.2f"|format(item.value or 0) }}
                                     </span>
                                 </div>
                             </div>
@@ -49,19 +49,19 @@
 
 {% set funds = {} %}
 {% set stocks = {} %}
-{% set crypto = {} %}
+{% set cripto = {} %}
 {% set renda_fixa = {} %}
 
 {% for company_name, records in companies.items() %}
     {% set latest = records[-1] %}
-    {% if latest.investment_type in ['real_state', 'real estate fund', 'fund'] %}
+    {% if latest.investment_type in ['cripto'] %}
+        {% set _ = cripto.update({company_name: records}) %}
+    {% elif latest.investment_type in ['fixed_income', 'bond'] %}
+        {% set _ = renda_fixa.update({company_name: records}) %}
+    {% elif latest.investment_type in ['real_state', 'real estate fund', 'fund'] %}
         {% set _ = funds.update({company_name: records}) %}
     {% elif latest.investment_type in ['stock', 'foreign stock (USD)'] %}
         {% set _ = stocks.update({company_name: records}) %}
-    {% elif latest.investment_type in ['crypto'] %}
-        {% set _ = crypto.update({company_name: records}) %}
-    {% elif latest.investment_type in ['fixed_income', 'bond'] %}
-        {% set _ = renda_fixa.update({company_name: records}) %}
     {% endif %}
 {% endfor %}
 
@@ -73,15 +73,15 @@
             </div>
         </div>
 
+        {% set graph_symbol = "$" if broker_name|lower == "nomad" else "R$" %}
         <div class="chart-metrics">
-            <button class="metric-btn active" data-metric="current_invested" data-color="#3498db">Preço Atual (R$)</button>
-            <button class="metric-btn" data-metric="invested" data-color="#2ecc71">Preço Médio (R$)</button>
-            <button class="metric-btn" data-metric="price_total_invested" data-color="#e67e22">Preço Total Investido (R$)</button>
-            <button class="metric-btn" data-metric="price_total_current" data-color="#2980b9">Preço Total Atual (R$)</button>
-            <button class="metric-btn" data-metric="dividends" data-color="#9b59b6">Dividendos (R$)</button>
-            <button class="metric-btn" data-metric="profit" data-color="#f1c40f">Lucro (R$)</button>
+            <button class="metric-btn active" data-metric="current_invested" data-color="#3498db">Preço Atual ({{ graph_symbol }})</button>
+            <button class="metric-btn" data-metric="invested" data-color="#2ecc71">Preço Médio ({{ graph_symbol }})</button>
+            <button class="metric-btn" data-metric="price_total_invested" data-color="#e67e22">Preço Total Investido ({{ graph_symbol }})</button>
+            <button class="metric-btn" data-metric="price_total_current" data-color="#2980b9">Preço Total Atual ({{ graph_symbol }})</button>
+            <button class="metric-btn" data-metric="dividends" data-color="#9b59b6">Dividendos ({{ graph_symbol }})</button>
+            <button class="metric-btn" data-metric="profit" data-color="#f1c40f">Lucro ({{ graph_symbol }})</button>
             <button class="metric-btn" data-metric="quantity" data-color="#1abc9c">Número de Ativos</button>
-            <button class="metric-btn" data-metric="profitability" data-color="#e74c3c">Rentabilidade (%)</button>
         </div>
 
         <div class="chart-container">
@@ -89,10 +89,11 @@
         </div>
     </div>
 
+    {{ render_investments('Cripto', cripto) }}
+    {{ render_investments('Renda Fixa', renda_fixa) }}
     {{ render_investments('FIIs', funds) }}
     {{ render_investments('Ações', stocks) }}
-    {{ render_investments('Cripto', crypto) }}
-    {{ render_investments('Renda Fixa', renda_fixa) }}
+    
 </div>
 
 

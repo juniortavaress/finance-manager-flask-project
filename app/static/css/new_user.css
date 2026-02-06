@@ -1,5 +1,6 @@
-
-/* Reset e tipografia */
+/* ========================================
+   RESET & FOUNDATION
+========================================= */
 * {
     box-sizing: border-box;
     margin: 0;
@@ -16,6 +17,9 @@ body {
     color: #333;
 }
 
+/* ========================================
+   MAIN CONTAINER
+========================================= */
 .setup-container {
     display: flex;
     width: 900px;
@@ -27,16 +31,18 @@ body {
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
 }
 
-
+/* ========================================
+   WELCOME SECTION (LEFT)
+========================================= */
 .welcome-section {
     flex: 1;
     background: linear-gradient(135deg, #6a11cb, #26263e);
     color: #fff;
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
     padding: 40px;
-    flex-direction: column;
     text-align: center;
 }
 
@@ -50,6 +56,9 @@ body {
     line-height: 1.5;
 }
 
+/* ========================================
+   SETUP SECTION (RIGHT)
+========================================= */
 .setup-section {
     flex: 1;
     padding: 50px 40px;
@@ -65,14 +74,25 @@ body {
     text-align: center;
 }
 
+/* CURRENCY GRID BOX */
 #currencies-container {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
+    display: grid;
+    /* Cleaned: Removed duplicate flex definition */
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 10px;
     margin-bottom: 20px;
 }
 
+.currency-option + label {
+    width: 100%; 
+    display: flex; /* Added flex to allow centering */
+    justify-content: center; 
+    text-align: center;
+}
 
+/* ========================================
+   BUTTONS
+========================================= */
 #save-datas-btn {
     padding: 12px;
     background-color: #2575fc;
@@ -88,38 +108,19 @@ body {
 
 #save-datas-btn:hover {
     background-color: #6a11cb;
+    
 }
 
-
+/* ========================================
+   RESPONSIVENESS
+========================================= */
 @media (max-width: 768px) {
     .setup-container {
         flex-direction: column;
     }
 
-    .welcome-section {
-        padding: 30px;
-    }
-
+    .welcome-section, 
     .setup-section {
         padding: 30px 20px;
     }
-}
-
-/* Container das Moedas (GRID BOX) */
-#currencies-container {
-    display: grid;
-    /* Define colunas que se ajustam automaticamente, cabendo entre 180px e 1fr (fraction) */
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 10px; /* Espaço entre os itens (células do grid) */
-    margin-bottom: 20px;
-    /* Remove a necessidade de 'justify-content: center;' pois o grid fará isso */
-}
-
-/* Opcional: Ajustar o estilo do Label para se encaixar melhor no Grid */
-.currency-option + label {
-    /* Garante que o label preencha toda a área do grid */
-    width: 100%; 
-    justify-content: center; /* Centraliza o conteúdo (ícone e texto) dentro da célula */
-    text-align: center;
-    /* Mantém os outros estilos: padding, border-radius, cores, etc. */
 }

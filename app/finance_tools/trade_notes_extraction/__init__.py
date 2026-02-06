@@ -5,6 +5,5 @@ from .manager_notes_extract import ManagerNotesExtractor
 __all__ = [
     "ManagerNotesExtractor",
     "NomadExtractor",
-    "NuExtractor",
-    "XpExtractor"
+    "NuExtractor"
 ]

@@ -8,15 +8,36 @@ from app import database as db
 from app.models import PersonalTradeStatement
 
 class NuExtractor:
+    """
+    Extracts and persists trade data from Nu Invest brokerage PDF statements.
+
+    This extractor supports:
+    - Equity trades
+    - Real estate funds (FIIs)
+    - Fixed income operations
+
+    Responsibilities:
+    - Parse raw PDF content
+    - Normalize trade data
+    - Apply corporate actions (splits)
+    - Allocate proportional fees
+    - Persist trades into the database
+    """
+        
     OBS_CODES = {"#", "F", "B", "A", "H", "X", "P", "Y", "L", "T", "I", "@", '@#', 'D#', 'D'}
     HEADER = ["Market", "B/S", "Market Type", "Ticker", "Quantity", "Unit Price", "Value Without Fee"]
+
 
     @staticmethod
     def get_info_from_nu(filename, file, user_id):
         """
-        Processes a brokerage note PDF file, extracts trade data,
-        calculates proportional fees, and saves the data to the database.
-        Returns a list of unique traded tickers.
+        Main entry point for Nu Invest statement extraction.
+
+        Workflow:
+        - Reads PDF content
+        - Detects statement type (equity vs fixed income)
+        - Extracts trade metadata
+        - Persists trades into the database
         """
         try:
             with fitz.open(stream=file, filetype="pdf") as doc:
@@ -30,7 +51,7 @@ class NuExtractor:
 
                 exists = PersonalTradeStatement.query.filter_by(user_id=user_id, statement_number=negotiation_number).first()
                 if exists:
-                    print(f"Nota {negotiation_number} já registrada.")
+                    print(f"Invoice {negotiation_number} already recorded.")
                     return None
                     
                 cleaned_lines = NuExtractor._clean_content(text)
@@ -43,7 +64,8 @@ class NuExtractor:
             print("Error:", e)
             traceback.print_exc() 
             return None
-        
+
+
     @staticmethod
     def _extract_data_from_statement(text):
         """Extracts raw text and metadata from the PDF statement."""       
@@ -52,6 +74,7 @@ class NuExtractor:
         negotiation_number = re.search(r'Número da nota\s*\n\s*(\d+)', text, re.IGNORECASE).group(1)
         return date, total_price, negotiation_number
         
+
     @staticmethod
     def _extract_data_from_fixed_statement(user_id, text):
         """Extracts raw text and metadata from the PDF statement.""" 
@@ -72,7 +95,6 @@ class NuExtractor:
                 operation_type = re.search(r'Tipo(?:/Emitente)?\s*([\w\s]+)(?=\s*\n(?!Data))', text).group(1)[0]
             operation_type = "B" if operation_type == "C" or operation_type == "VENDA FINAL" else "S"
 
-
             date = re.search(r'(Data de Operação|Data)\s+(\d{2}/\d{2}/\d{4})', text).group(2)
             code = re.search(r'Título\s+([A-Za-z0-9\s]+?)(?=\s*(?:Valor|Tx|\d{1,2}\s*t))', text.replace('\n', ' ')).group(1).strip()
             tax = re.search(r'Tx\.\s*/\s*CUPON\s*%\s*([\d.,]+)', text)
@@ -83,11 +105,9 @@ class NuExtractor:
             unit_price = re.search(r'(Valor 1 título|Preço Unitário da Operação|Valor da Operação)\s*(R?\$\s?[\d.,]+|\d+,\d{2})', text)
             unit_price = re.search(r'(Valor 1 título|Preço Unitário da Operação|Valor da Operação)\s*[\n\r]*\s*(R?\$\s?)?([\d.,]+)', text).group(3)
 
-
             if "Banco Central" in broadcaster:
-                ticker = code  # Apenas a terceira linha
+                ticker = code  
             else:
-                print(statement_code)
                 bank_name = ' '.join(broadcaster.split()[:2])
                 formated_tax = "CDI" if tax in ["0", "0.00"] else f"{tax}%"
                 ticker = f"{bank_name} - {formated_tax} - {code}"
@@ -115,17 +135,15 @@ class NuExtractor:
             return None
         
 
-
     @staticmethod
     def _clean_content(text):
         """Cleans and filters the raw text to isolate trade lines."""
-        # OBS_CODES = {"#", "F", "B", "A", "H", "X", "P", "Y", "L", "T", "I", "@", '@#', 'D#', 'D'}
-        HEADER = ["Market", "B/S", "Market Type", "Ticker", "Quantity", "Unit Price", "Value Without Fee"]
         start_idx = text.find("Valor/Ajuste D/C")
         end_idx = text.find("Resumo dos Negócios")
         lines = text[start_idx:end_idx].strip().splitlines()[1:]
         return [line for line in lines if line.strip() not in NuExtractor.OBS_CODES]
     
+
     @staticmethod
     def _create_df_records(cleaned_lines, date, negotiation_number, total_price):
         """Persists the trade records to the database."""
@@ -161,44 +179,38 @@ class NuExtractor:
         for event in split_events:
             affected_rows = (df["Ticker"] == event["ticker"]) & (df["Date"] < event["date"])
 
-            # Ajuste especial para RBVA11 em 29/04/2025
+            # Special adjustment for RBVA11 on 04/29/2025
             if event["ticker"] == "RBVA11":
                 special_date = datetime.strptime("29/04/2025", "%d/%m/%Y").date()
                 special_rows = affected_rows & (df["Date"] == special_date)
                 df.loc[special_rows, "Quantity"] = np.floor((df.loc[special_rows, "Quantity"].astype(int) + 4) * event["ratio"] + 0.5).astype(int)
 
-                # Aplica o split normalmente para os demais afetados
                 normal_rows = affected_rows & (df["Date"] != special_date)
                 df.loc[normal_rows, "Quantity"] = np.floor(df.loc[normal_rows, "Quantity"].astype(int) * event["ratio"] + 0.5).astype(int)
             else:
-                # Split padrão para outros tickers
                 df.loc[affected_rows, "Quantity"] = np.floor(df.loc[affected_rows, "Quantity"].astype(int) * event["ratio"] + 0.5).astype(int)
 
-            # Ajuste de preço unitário
             df["Unit Price"] = df["Unit Price"].astype(str).str.replace(",", ".", regex=False).astype(float)
             df.loc[affected_rows, "Unit Price"] = df.loc[affected_rows, "Unit Price"] / event["ratio"]
 
-        # Compute sums for buys and sells
         buy_sum = df.loc[df['B/S'] == 'B', 'Value Without Fee'].sum()
         sell_sum = df.loc[df['B/S'] == 'S', 'Value Without Fee'].sum()
         base_total = buy_sum + sell_sum
 
-        # Calculate the proportional fee ("taxa")
         value_before_tax = abs(sell_sum - buy_sum)
         total_price_float = float(total_price.replace('.', '').replace(',', '.'))
         taxa = abs(abs(value_before_tax) - abs(total_price_float))
 
-        # Apply fee proportionally to buys
         if buy_sum > 0:
             taxa_c = (df.loc[df['B/S'] == 'B', 'Value Without Fee'] / base_total) * taxa
             df.loc[df['B/S'] == 'B', 'Final Value'] = (df.loc[df['B/S'] == 'B', 'Value Without Fee'] + taxa_c).round(2)
 
-        # Apply fee proportionally to sells
         if sell_sum > 0:
             taxa_v = (df.loc[df['B/S'] == 'S', 'Value Without Fee'] / base_total) * taxa
             df.loc[df['B/S'] == 'S', 'Final Value'] = (df.loc[df['B/S'] == 'S', 'Value Without Fee'] - taxa_v).round(2)
         
         return df
+
 
     @staticmethod
     def _save_to_database(df, user_id):
@@ -207,13 +219,12 @@ class NuExtractor:
         for _, row in df.iterrows():
             ticker = str(row["Ticker"]).strip()
 
-            # Define o tipo de investimento com base no final do ticker
             if ticker.endswith("11"):
                 investment_type = "real_state"
             elif ticker.endswith(("3", "4", "5", "6")):
                 investment_type = "stock"
             else:
-                investment_type = "other"  # caso o ticker não siga o padrão
+                investment_type = "other"  
 
             trade = PersonalTradeStatement(
                 user_id=user_id,

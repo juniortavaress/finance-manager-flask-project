@@ -8,7 +8,7 @@ parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.insert(0, parent_dir)
 from app import create_app, database as db
 from app.models import Transaction, Contribution, CompanyDatas, Assets, User, PersonalTradeStatement, BrokerStatus, UserTradeSummary, UserDividents
-
+from datetime import timedelta
 app = create_app()
 
 def add_transaction_from_dict(data):
@@ -111,197 +111,194 @@ def add_dividend(user_id=1):
 
 
 def delete():
-    # deleted = (
-    #     db.session.query(User)
-    #     .filter(
-    #         User.id == 1,
-    #     )
-    #     .delete(synchronize_session=False)
-    # )
-
-    # deleted = (
-    #     db.session.query(PersonalTradeStatement)
-    #     .filter(
-    #         PersonalTradeStatement.user_id == 1,
-    #     )
-    #     .delete(synchronize_session=False)
-    # )
-
-    # deleted = (
-    #     db.session.query(BrokerStatus)
-    #     .filter(
-    #         BrokerStatus.user_id == 1,
-    #     )
-    #     .delete(synchronize_session=False)
-    # )
-    # deleted = (
-    #     db.session.query(CompanyDatas)
-    #     .delete(synchronize_session=False)
-    # )
-
     
-    # db.session.query(BrokerStatus).filter(
-    #     BrokerStatus.user_id == 1
-    # ).update(
-    #     {BrokerStatus.cash: BrokerStatus.total_contributions, 
-    #     BrokerStatus.invested_value: 0}, 
-    #     synchronize_session=False
-    # )
+    # for dbs in [Transaction, PersonalTradeStatement, BrokerStatus, Contribution, UserTradeSummary, PersonalTradeStatement]:
+    for dbs in [UserTradeSummary]:
+        for id in range(22074, 22101):
+            deleted = (
+                db.session.query(dbs)
+                .filter(
+                    dbs.id == id
+                )
+                .delete(synchronize_session=False)
+            )
+
+  
+    # # Executa a deleção
+    # deleted_count = db.session.query(BrokerStatus).filter(
+    #     BrokerStatus.brokerage == "Conversão BRL - USD"
+    # ).delete(synchronize_session='fetch')
+   
+   
+    db.session.commit()
+
+def fix_nomad_balances():
+    try:
+        # Filtra registros da Nomad
+        nomad_records = BrokerStatus.query.filter_by(brokerage="Nomad").all()
+        
+        updated_count = 0
+        for record in nomad_records:
+            # 1. Zera os valores de investimento e lucro/perda
+            record.invested_value = 0.0
+            record.profit_loss = 0.0
+            
+            # 2. Se total_contributions não for nulo, fixa em 950
+            if record.total_contributions is not None:
+                record.total_contributions = 950.0
+            
+            # 3. Igualar o cash ao total_contributions (opcional, mas mantém a consistência)
+            record.cash = record.total_contributions
+            
+            updated_count += 1
+        
+        db.session.commit()
+        print(f"Sucesso! {updated_count} registros da Nomad atualizados para 950.")
+    except Exception as e:
+        db.session.rollback()
+        print(f"Erro ao atualizar Nomad: {e}")
 
 
-    # deleted = (
-    #     db.session.query(Transaction)
-    #     .filter(
-    #         Transaction.user_id == 1,
-    #     )
-    #     .delete(synchronize_session=False)
-    # )
+def add_div():
+    try:
+        user_id = 1  # ajuste se necessário
+        ticker = "JPPA11"
+        value = 1.21
 
-    # deleted = (
-    #     db.session.query(UserTradeSummary)
-    #     .filter(
-    #         UserTradeSummary.user_id == 1,
-    #     )
-    #     .delete(synchronize_session=False)
-    # )
-    # deleted = (
-    #     db.session.query(CompanyDatas)
+        dates = [
+            date(2025, 2, 10),
+            date(2025, 3, 10),
+            date(2025, 4, 10),
+            date(2025, 5, 10),
+            date(2025, 6, 10),
+            date(2025, 7, 10),
+            date(2025, 8, 10),
+            date(2025, 9, 10),
+            date(2025, 10, 10),
+            date(2025, 11, 10),
+            date(2025, 12, 10),
+            date(2026, 1, 10),
+        ]
 
-    #     .delete(synchronize_session=False)
-    # )
+        inserted_count = 0
+
+        for d in dates:
+            exists = (
+                db.session.query(UserDividents)
+                .filter_by(
+                    user_id=user_id,
+                    ticker=ticker,
+                    date=d
+                )
+                .first()
+            )
+
+            if exists:
+                continue
+
+            db.session.add(UserDividents(
+                user_id=user_id,
+                ticker=ticker,
+                date=d,
+                value=value
+            ))
+
+            inserted_count += 1
+
+        db.session.commit()
+
+    except Exception as e:
+        db.session.rollback()
+        print(f"❌ Erro ao inserir dividendos: {e}")
 
 
-    # deleted = (
-    #     db.session.query(Assets)
-    #     .filter(
-    #         Assets.user_id == 1,
-    #     )
-    #     .delete(synchronize_session=False)
-    # )
+def extend_company_prices_until_today():
+    """
+    Extends the last known CompanyDatas price for each company
+    until today using forward-fill.
+
+    This function is safe to run multiple times.
+    """
+
+    today = date.today()
+
+    # 1. Get last available date per company
+    last_entries = (
+        db.session.query(
+            CompanyDatas.company,
+            func.max(CompanyDatas.date).label("last_date")
+        )
+        .group_by(CompanyDatas.company)
+        .all()
+    )
+
+    inserted = 0
+
+    for company, last_date in last_entries:
+        if last_date >= today:
+            continue
+
+        # 2. Load the last price record
+        last_record = (
+            db.session.query(CompanyDatas)
+            .filter_by(company=company, date=last_date)
+            .first()
+        )
+
+        if not last_record:
+            continue
+
+        # 3. Forward-fill until today
+        current_day = last_date + timedelta(days=1)
+
+        while current_day <= today:
+            exists = (
+                db.session.query(CompanyDatas)
+                .filter_by(company=company, date=current_day)
+                .first()
+            )
+
+            if not exists:
+                db.session.add(
+                    CompanyDatas(
+                        company=company,
+                        date=current_day,
+                        current_price=last_record.current_price
+                    )
+                )
+                inserted += 1
+
+            current_day += timedelta(days=1)
+
+    db.session.commit()
+    print(f"✅ {inserted} CompanyDatas records inserted.")
 
 
-    # cutoff = date(2025, 12, 5)
+def delete_trade_summaries_by_id_range(start_id=22024, end_id=22049):
+    """
+    Deletes UserTradeSummary records within a specific ID range.
+    """
 
-    # Excluir BrokerStatus do user 1 antes da data especificada
-    # deleted_broker = (
-    # db.session.query(BrokerStatus)
-    #     .filter(
-    #         BrokerStatus.user_id == 1,
-    #         # BrokerStatus.date < cutoff
-    #     )
-    #     .delete(synchronize_session=False)
-    # )
     deleted = (
-        db.session.query(Transaction)
+        db.session.query(UserTradeSummary)
         .filter(
-            Transaction.user_id == 1,
+            UserTradeSummary.id >= start_id,
+            UserTradeSummary.id <= end_id
         )
         .delete(synchronize_session=False)
     )
 
-
-
     db.session.commit()
-    # print(f"{deleted} registros deletados com sucesso.")
-    #    Apaga os registros da PersonalTradeStatement
-
-    # deleted_personal = (
-    #     db.session.query(PersonalTradeStatement)
-    #     .filter(
-    #         PersonalTradeStatement.id == 5,
-    # )
-    #     .delete(synchronize_session=False)
-    # )
-    # trade = db.session.query(PersonalTradeStatement).filter_by(id=6).first()
-    # if trade:
-    #     trade.quantity = 2
-    #     trade.final_value = 3000.0
-    #     trade.unit_price = 3000.0
-    #     db.session.commit()
-    #     print("Trade atualizado com sucesso!")
-    # else:
-    #     print("Trade não encontrado")
-    # # Apaga os registros da Asset
-    # deleted_assets = (
-    #     db.session.query(Assets)
-    #     .filter(Assets.user_id == 1)
-    #     .delete(synchronize_session=False)
-    # )
-
-    # db.session.commit()
-
-    # print("aqui")
-    # print(f"{deleted_personal} registros deletados da PersonalTradeStatement.")
-    # print(f"{deleted_assets} registros deletados da Asset.")
-
-def add():
-
-    dados = [
-        {"user_id": 1, "brokerage": "Nomad", "investment_type": "foreign stock (USD)", "date": "21/10/23", "company": "NVI", "quantity": 1, "current_price": 20, "avg_price": 30, "dividend": 1},
-        {"user_id": 1, "brokerage": "Nomad", "investment_type": "foreign stock (USD)", "date": "21/11/23", "company": "XXP", "quantity": 2, "current_price": 30, "avg_price": 30, "dividend": 2},
-        {"user_id": 1, "brokerage": "Nomad", "investment_type": "foreign stock (USD)", "date": "21/10/22", "company": "XXP", "quantity": 1, "current_price": 30, "avg_price": 30, "dividend": 2},
-        {"user_id": 1, "brokerage": "Nomad", "investment_type": "foreign stock (USD)", "date": "21/11/23", "company": "NVI", "quantity": 3, "current_price": 50, "avg_price": 55, "dividend": 3},
-        {"user_id": 1, "brokerage": "NuInvest", "investment_type": "stock", "date": "21/10/23", "company": "Nu", "quantity": 2, "current_price": 30, "avg_price": 20, "dividend": 2},
-        {"user_id": 1, "brokerage": "NuInvest", "investment_type": "stock", "date": "21/11/23", "company": "Nu", "quantity": 1, "current_price": 40, "avg_price": 27, "dividend": 2},
-        {"user_id": 1, "brokerage": "NuInvest", "investment_type": "stock", "date": "23/12/23", "company": "Nu", "quantity": 1, "current_price": 35, "avg_price": 27, "dividend": 2},
-        {"user_id": 1, "brokerage": "NuInvest", "investment_type": "real estate fund", "date": "21/10/22", "company": "LP", "quantity": 3, "current_price": 50, "avg_price": 26, "dividend": 3},
-        {"user_id": 1, "brokerage": "XP", "investment_type": "fixed income", "date": "21/10/23", "company": "TD", "quantity": 1, "current_price": 20, "avg_price": 20, "dividend": 1},
-        {"user_id": 1, "brokerage": "XP", "investment_type": "fixed income", "date": "21/11/23", "company": "TD", "quantity": 2, "current_price": 35, "avg_price": 20, "dividend": 2},
-        {"user_id": 1, "brokerage": "XP", "investment_type": "fixed income", "date": "21/12/23", "company": "TD", "quantity": 3, "current_price": 60, "avg_price": 50, "dividend": 3},
-        {"user_id": 1, "brokerage": "XP", "investment_type": "crypto", "date": "21/10/23", "company": "TDS", "quantity": 2, "current_price": 35, "avg_price": 20, "dividend": 2},
-        {"user_id": 1, "brokerage": "XP", "investment_type": "crypto", "date": "21/11/23", "company": "TDS", "quantity": 3, "current_price": 60, "avg_price": 20, "dividend": 3},
-    ]
-
-    # Inserção em lote
-    for linha in dados:
-        linha["date"] = datetime.strptime(linha["date"], "%d/%m/%y").date()
-        
-        registro = UserTradeSummary(**linha)
-        db.session.add(registro)
-
-    db.session.commit()
-
-
-def add_investment_type_column():
-    from sqlalchemy import inspect, text
-    app = create_app()
-    with app.app_context():
-        inspector = inspect(db.engine)
-        columns = [col['name'] for col in inspector.get_columns('user_trade_summary')]
-
-        # Adicionar coluna se não existir
-        if 'investment_type' not in columns:
-            print("Adicionando coluna 'investment_type'...")
-            db.session.execute(text(
-                "ALTER TABLE user_trade_summary ADD COLUMN investment_type VARCHAR(50) DEFAULT 'stock' NOT NULL;"
-            ))
-            db.session.commit()
-        else:
-            print("Coluna 'investment_type' já existe.")
-
-        # Atualizar registros existentes
-        all_trades = UserTradeSummary.query.all()
-        for trade in all_trades:
-            if trade.brokerage == "Nomad":
-                trade.investment_type = "foreign stock (USD)"
-            elif trade.brokerage == "NuInvest" and trade.company == "Nu":
-                trade.investment_type = "stock"
-            elif trade.brokerage == "NuInvest" and trade.company == "LP":
-                trade.investment_type = "real estate fund"
-            elif trade.brokerage == "XP" and trade.company == "TD":
-                trade.investment_type = "fixed income"
-            elif trade.brokerage == "XP" and trade.company == "TDS":
-                trade.investment_type = "crypto"
-
-        db.session.commit()
-        print(f"Coluna 'investment_type' adicionada e {len(all_trades)} registros atualizados.")
-
+    print(f"✅ Deleted {deleted} UserTradeSummary records (IDs {start_id}–{end_id}).")
 
 
 if __name__ == "__main__":
     with app.app_context():
         # importar_excel_para_banco(r"app\static\datas\aportes.xlsx")
+        # add_div()
         delete()
+        # fix_nomad_balances()
         # from app import db
+        pass
 
       

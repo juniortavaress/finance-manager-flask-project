@@ -3,11 +3,6 @@
   font-family: Roboto, sans-serif;
 }
 
-html{
-  min-height: 500px;
-  background-color: antiquewhite;
-}
-
 html, body {
   margin: 0;
   padding: 0;
@@ -20,10 +15,6 @@ html, body {
 body {
   display: flex;
   flex-direction: column;
-  min-width: 1000px;
-  background-color: aqua;
-  /* overflow-x: auto; */
-
-
+  overflow-x: auto;
 }
 

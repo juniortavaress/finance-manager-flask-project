@@ -15,7 +15,7 @@
   align-items: center;
   justify-content: center;
   flex-grow: 1;
-  height: 100%;
+  height: 100%; /* Nota: flex-grow e height: 100% juntos podem ignorar o gap do pai em alguns browsers */
   gap: 2vh;
 }
 
@@ -34,16 +34,11 @@
   width: 100%;
 }
 
-#card-incomes-expenses {
-  height: 100%;
-  width: 100%;
-}
-
 #card-expenses-breakdown {
   display: flex;
   flex-direction: column;
   flex-grow: 1;
-  width: 100%;
+  /* width: 100% removido: ja definido na classe .income-expense-card */
 }
 
 #currency-exchange-card {
@@ -67,7 +62,7 @@
 
 #chart-incomes-expenses {
   flex-grow: 1;
-  padding: 0%;
+  padding: 0; /* Removido %: valor 0 nao precisa de unidade */
 }
 
 
@@ -88,8 +83,8 @@
   width: 15vh;
 }
 
-#yearSelectCumulative {
-  width: 15vh;
+#brokerSelector {
+  width: 20vh;
 }
 
 /* Dropdown container */

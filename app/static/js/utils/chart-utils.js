@@ -53,7 +53,7 @@ export function quarterlyTickFormatter(step) {
 
 export const tooltipCallbacks = {
   title() {
-    return ""; // remove a data do topo do tooltip
+    return ""; 
   },
 
   label(context) {
@@ -72,7 +72,6 @@ export const tooltipCallbacks = {
         maximumFractionDigits: 2
       })}`;
     } else {
-      // porcentagem
       return `${label}: ${value.toFixed(2)} %`;
     }
   }
@@ -89,7 +88,7 @@ export  function UserBankFetcherets(metricsArray, data, metricsLabels) {
                 borderColor: color,
                 backgroundColor: color + "33",
                 fill: true,
-                tension: 0, // linhas retas
+                tension: 0, 
                 pointRadius: 4,
                 pointHoverRadius: 6
             };

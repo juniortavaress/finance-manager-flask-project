@@ -1,6 +1,6 @@
-/* login_page.css */
-
-/* Reset e tipografia */
+/* ========================================
+   RESET & FOUNDATION
+========================================= */
 * {
     box-sizing: border-box;
     margin: 0;
@@ -17,7 +17,9 @@ body {
     color: #333;
 }
 
-/* Container principal */
+/* ========================================
+   MAIN CONTAINER
+========================================= */
 .login-container {
     display: flex;
     width: 900px;
@@ -28,16 +30,18 @@ body {
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
 }
 
-/* Welcome Section */
+/* ========================================
+   WELCOME SECTION (LEFT SIDE)
+========================================= */
 .welcome-section {
     flex: 1;
     background: linear-gradient(135deg, #6a11cb, #26263e);
     color: #fff;
     display: flex;
+    flex-direction: column; /* Agrupado com as outras propriedades flex */
     justify-content: center;
     align-items: center;
     padding: 40px;
-    flex-direction: column;
     text-align: center;
 }
 
@@ -52,7 +56,9 @@ body {
     line-height: 1.5;
 }
 
-/* Login Section */
+/* ========================================
+   LOGIN SECTION (RIGHT SIDE)
+========================================= */
 .login-section {
     flex: 1;
     padding: 50px 40px;
@@ -68,8 +74,11 @@ body {
     text-align: center;
 }
 
-/* Form Styles */
-#login-form, #create-account-form {
+/* ========================================
+   FORM ELEMENTS
+========================================= */
+#login-form, 
+#create-account-form {
     display: flex;
     flex-direction: column;
     gap: 20px;
@@ -99,7 +108,7 @@ body {
     box-shadow: 0 0 5px rgba(37, 117, 252, 0.5);
 }
 
-/* Form options */
+/* Form options (Remember me / Forgot password) */
 .form-options {
     display: flex;
     justify-content: space-between;
@@ -113,17 +122,23 @@ body {
     gap: 5px;
 }
 
-.forgot-password {
+/* Links (Shared Styles) */
+.forgot-password, 
+.signup-link a {
     color: #2575fc;
     text-decoration: none;
+    font-weight: 500;
     transition: color 0.3s;
 }
 
-.forgot-password:hover {
+.forgot-password:hover, 
+.signup-link a:hover {
     color: #6a11cb;
 }
 
-/* Submit Button */
+/* ========================================
+   BUTTONS & FEEDBACK
+========================================= */
 .btn-submit {
     padding: 12px;
     background-color: #2575fc;
@@ -140,22 +155,10 @@ body {
     background-color: #6a11cb;
 }
 
-/* Signup Link */
 .signup-link {
     text-align: center;
     margin-top: 20px;
     font-size: 0.9rem;
-}
-
-.signup-link a {
-    color: #2575fc;
-    text-decoration: none;
-    font-weight: 500;
-    transition: color 0.3s;
-}
-
-.signup-link a:hover {
-    color: #6a11cb;
 }
 
 .invalid-feedback {
@@ -163,7 +166,9 @@ body {
     font-size: 0.9em;
 }
 
-/* Responsividade */
+/* ========================================
+   RESPONSIVENESS
+========================================= */
 @media (max-width: 768px) {
     .login-container {
         flex-direction: column;

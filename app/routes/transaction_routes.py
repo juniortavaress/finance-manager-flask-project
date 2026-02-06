@@ -4,8 +4,9 @@ from flask_login import login_required, current_user
 
 from app import database as db
 from app.models import Transaction
-from app.finance_tools import UpdateDatabases
-from app.services import process_transaction
+from app.services.upload_service import UploadService
+from app.finance_tools.market_data.update_databases import UpdateDatabases
+from app.finance_tools.summaries_updaters.broker_status_rebuilder import BrokerStatusRebuilder
 
 
 transaction_bp = Blueprint("transaction", __name__)
@@ -21,21 +22,17 @@ def add_transaction():
     saves the transaction using the `process_transaction` service,
     and redirects the user to their homepage.
     """
-    process_transaction(request.form, current_user.id)
+    try:
+        UploadService.handle_transaction_upload(current_user.id, request.form)
 
-    if request.form['category'] == "Investments":
-        target_date = datetime.strptime(request.form['date'], "%Y-%m-%d").date()
-        desc_lower = request.form['description'].lower()
-        if "nu" in desc_lower:
-            brokerage_key = "NuInvest"
-        elif "xp" in desc_lower:
-            brokerage_key = "XPInvest"
-        elif "nomad" in desc_lower:
-            brokerage_key = "Nomad"
-        else:
-            brokerage_key = None
+        if request.form['category'] == "Investments":
+            target_date = datetime.strptime(request.form['date'], "%Y-%m-%d").date()
+            brokerage_key = BrokerStatusRebuilder.get_brokerage_key( request.form['description'])
+            BrokerStatusRebuilder.rebuild(user_id=current_user.id, target_date=target_date, brokerage_name=[brokerage_key])
 
-        UpdateDatabases.update_broker_status(user_id=current_user.id, target_date=target_date, brokerage=[brokerage_key])
+    except:
+        db.session.rollback()
+
     return redirect(url_for("user.user_homepage", user_id=current_user.id))
 
 
@@ -48,12 +45,7 @@ def delete_transaction(transaction_id):
     This function retrieves the transaction from the database,
     deletes it, commits the change, and redirects the user
     to their homepage.
-    
-    Args:
-        transaction_id (int): The ID of the transaction to delete.
     """
-
-    """aqui vai precisar chamar para atualizar o broker status"""
     transaction = Transaction.query.get_or_404(transaction_id)
     user_id = transaction.user_id
     date = transaction.date
@@ -62,16 +54,7 @@ def delete_transaction(transaction_id):
     db.session.commit()
     
     if transaction.category == "Investments":
-        desc_lower = transaction.description.lower()
-        if "nu" in desc_lower:
-            brokerage_key = "NuInvest"
-        elif "xp" in desc_lower:
-            brokerage_key = "XPInvest"
-        elif "nomad" in desc_lower:
-            brokerage_key = "Nomad"
-        else:
-            brokerage_key = transaction.description
-
-        UpdateDatabases.update_broker_status(user_id=user_id, target_date=date, brokerage=[brokerage_key])
+        brokerage_key = BrokerStatusRebuilder.get_brokerage_key( request.form['description'])
+        BrokerStatusRebuilder.rebuild(user_id=user_id, target_date=date, brokerage_name=[brokerage_key])
 
     return redirect(url_for("user.user_homepage", user_id=current_user.id))

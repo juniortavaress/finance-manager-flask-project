@@ -2,12 +2,9 @@
 
 <script>
     const sidebarButtons = document.querySelectorAll('.button-sidebar');
-
     sidebarButtons.forEach(btn => {
         btn.addEventListener('click', () => {
-            // Remove a classe "active" de todos os botões
             sidebarButtons.forEach(b => b.classList.remove('active'));
-            // Adiciona a classe "active" ao botão clicado
             btn.classList.add('active');
         });
     });
@@ -15,12 +12,9 @@
 
 <script>
     const selectPageButtons = document.querySelectorAll('.nav-item');
-
     selectPageButtons.forEach(btn => {
         btn.addEventListener('click', () => {
-            // Remove a classe "active" de todos os botões
             selectPageButtons.forEach(b => b.classList.remove('active'));
-            // Adiciona a classe "active" ao botão clicado
             btn.classList.add('active');
         });
     });

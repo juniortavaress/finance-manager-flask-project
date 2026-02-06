@@ -4,12 +4,10 @@
     <meta charset="UTF-8">
     <title>{% block title %}My Dashboard{% endblock %}</title>
 
-    <!-- External Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
 
-    <!-- Stylesheets -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/investments.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/box_flutuante.css') }}">
@@ -18,7 +16,6 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/finance.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/homepage.css') }}">
 </head>
-
 
 <body>
     <header>
@@ -33,11 +30,8 @@
         </section>
     </main>
     
-    <!-- <footer><p>© 2025 Jucélio Tavares Junior. Todos os direitos reservados.</p></footer> -->    
     <script src="{{ url_for('static', filename='js/utils/input-modal.js') }}"></script>
 </body>
-
-
 </html>
 
 {% include "components/scripts.html" %}

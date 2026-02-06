@@ -1,7 +1,9 @@
-# Import main classes from each module
-from .user_investments import UserInvestmentsFetcher
-from .user_bank import UserBankFetcher
 from .graphs_aux import GraphAux
+from .user_bank import UserBankFetcher
+from .user_investments import UserInvestmentsFetcher
 
-# Define public interface of the package
-__all__ = ["UserInvestmentsFetcher", "UserBankFetcher", "GraphAux"]
+__all__ = [
+    "GraphAux",
+    "UserBankFetcher",
+    "UserInvestmentsFetcher"
+]

@@ -2,14 +2,6 @@
     <a href="{{ url_for('user.user_homepage', user_id=current_user.id) }}" class="sidebar-button {% if active_page == 'home' %}active{% endif %}" role="button">
         <span class="material-symbols-outlined">home</span>
     </a>
-    
-    
-    <!-- <a href="{{ url_for('finance.finance', currency='real') }}" class="sidebar-button {% if active_page == 'finance_real' %}active{% endif %}" role="button">
-        <span class="material-symbols-outlined">paid</span>
-    </a>
-    <a href="{{ url_for('finance.finance', currency='euro') }}" class="sidebar-button {% if active_page == 'finance_euro' %}active{% endif %}" role="button">
-        <span class="material-symbols-outlined">euro</span>
-    </a> -->
 
     {% for uc in current_user.user_currencies %}
         <a href="{{ url_for('finance.finance', currency=uc.currency.code|lower) }}" 
@@ -19,11 +11,8 @@
         </a>
     {% endfor %}
 
-
     <a href="{{ url_for('finance.investments') }}" class="sidebar-button {% if active_page == 'investments' %}active{% endif %}" role="button">
         <span class="material-symbols-outlined">finance_mode</span>
     </a>
-    <a class="sidebar-button {% if active_page == 'tables' %}active{% endif %}" role="button">
-        <span class="material-symbols-outlined">view_list</span>
-    </a>
+
 </div>

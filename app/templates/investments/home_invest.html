@@ -1,5 +1,5 @@
 <section id="investment-summary">
-    {% for section in ["NuInvest", "XPInvest", "Nomad"] %}
+    {% for section in brokerages_cards %}
         <article class="investment-card">
             <div class="investment-card-header">
                 <h2 class="investment-card-title">
@@ -32,7 +32,6 @@
     {% endfor %}
 </section>
 
-
 <section id="investment-chart">
     <div id="chart01" class="graph">
         <div class="header-graph">
@@ -45,11 +44,15 @@
 
     <div id="chart02" class="graph">
         <div class="header-graph">
-            <div class="title-graph">Distribuição por tipo de investimento</div>
+            <div class="title-graph">Performance by Broker</div>
+            <div class="select-graph">
+                <select id="brokerSelector">
+                    <!-- <option value="all">All Brokers</option> -->
+                </select>
+            </div>
         </div>
         <div class="chart-container">
             <canvas id="investmentChartHome"></canvas>
         </div>
     </div>
-
 </section>

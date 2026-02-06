@@ -64,12 +64,9 @@ document.addEventListener("DOMContentLoaded", () => {
     } else {
       uploadForm.action = notesURL;
       folderSection.style.display = "block";
-      // manualSection.style.display = "none";
-      // toggleRequired(manualSection, false);
     }
   });
 
-  // Log de arquivos selecionados
   const folderInput = folderSection.querySelector('input[type="file"]');
   if (folderInput) {
     folderInput.addEventListener("change", (e) => {
@@ -77,13 +74,10 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Submissão do formulário
   uploadForm.addEventListener("submit", (e) => {
     console.log("Enviando formulário para:", uploadForm.action);
   });
-
-  // Preencher select de ativos do usuário (exemplo)
-  const userAssets = ["AAPL", "PETR4", "BTC"]; // você deve substituir com dados reais do backend
+  const userAssets = ["AAPL", "PETR4", "BTC"]; 
   
   const incomeAssetSelect = document.getElementById("dividend_ticker");
   if (incomeAssetSelect) {

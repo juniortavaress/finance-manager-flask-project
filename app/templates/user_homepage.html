@@ -3,144 +3,141 @@
 {% block title %}Home{% endblock %}
 
 {% block page %}
-    <div id="content-home">
-        
-<section id="financial-summary">
-            {% for section in ["incomes", "expenses", "balance"] %}
-                <article class="finance-card-item {{ section }}">
-                    <div class="finance-title-wrapper">
-                        <div class="finance-info-header">
-                            <h2 class="finance-card-title">
-                                {% if section == "incomes" %}Total Incomes
-                                {% elif section == "expenses" %}Total Expenses
-                                {% else %}Current Balance
-                                {% endif %}
-                            </h2>
-                            <span class="finance-card-subtitle">
-                                {% if section in ["incomes", "expenses"] %}Resumo Mensal
-                                {% else %}Resumo Acumulado
-                                {% endif %}
-                            </span>
-                        </div>
-                        <span class="material-symbols-outlined finance-icon-main">
-                            {% if section == "incomes" %}money_bag
-                            {% elif section == "expenses" %}credit_card
-                            {% else %}account_balance_wallet
+<div id="content-home">
+    <section id="financial-summary">
+        {% for section in ["incomes", "expenses", "balance"] %}
+            <article class="finance-card-item {{ section }}">
+                <div class="finance-title-wrapper">
+                    <div class="finance-info-header">
+                        <h2 class="finance-card-title">
+                            {% if section == "incomes" %}Total Incomes
+                            {% elif section == "expenses" %}Total Expenses
+                            {% else %}Current Balance
+                            {% endif %}
+                        </h2>
+                        <span class="finance-card-subtitle">
+                            {% if section in ["incomes", "expenses"] %}Monthly Summary
+                            {% else %}Cumulative Summary
                             {% endif %}
                         </span>
                     </div>
+                    <span class="material-symbols-outlined finance-icon-main">
+                        {% if section == "incomes" %}money_bag
+                        {% elif section == "expenses" %}credit_card
+                        {% else %}account_balance_wallet
+                        {% endif %}
+                    </span>
+                </div>
 
-                    <div class="finance-values-grid">
-                        {% for code, data in values.items() %}
-                            <div class="finance-currency-row">
-                                <span class="material-symbols-outlined finance-icon-currency">{{ data.icon }}</span>
-                                <div class="finance-currency-info">
-                                    <span class="finance-label">{{ data.name }} ({{ code }})</span>
-                                    <span class="finance-value">
-                                        {{ data.symbol }} {{ data[section] }}
-                                    </span>
-                                </div>
+                <div class="finance-values-grid">
+                    {% for code, data in values.items() %}
+                        <div class="finance-currency-row">
+                            <span class="material-symbols-outlined finance-icon-currency">{{ data.icon }}</span>
+                            <div class="finance-currency-info">
+                                <span class="finance-label">{{ data.name }} ({{ code }})</span>
+                                <span class="finance-value">
+                                    {{ data.symbol }} {{ data[section] }}
+                                </span>
                             </div>
-                        {% endfor %}
-                    </div>
-                </article>
-            {% endfor %}
-        </section>
-        
-
-
-
-        <section id="add-transaction">
-            <form id="transaction-form" method="POST" action="{{ url_for('transaction.add_transaction') }}">
-
-                <div class="form-group">
-                <label for="date">Date</label>
-                <input class="info" type="date" id="date" name="date" required>
-                </div>
-
-                <div class="form-group">
-                <label for="type">Type</label>
-                <select class="info" id="type" name="type" required>
-                    <option value="Income">Income</option>
-                    <option value="Expense">Expense</option>
-                </select>
-                </div>
-
-                <div class="form-group">
-                <label for="description">Description</label>
-                <input class="info" type="text" id="description" name="description" placeholder="Enter description" required>
-                </div>
-
-                <div class="form-group">
-                <label for="category">Category</label>
-                <select class="info" id="category" name="category" required>
-                    {% for category in ["Food", "Monthly Bills", "Cleaning/Hygiene", "Takeout", "Travel", "Housing", "Mensa", "Others", "Restaurant", "Clothing", "Investments", "Salary"] %}
-                    <option value="{{ category }}">{{ category }}</option>
+                        </div>
                     {% endfor %}
-                </select>
                 </div>
+            </article>
+        {% endfor %}
+    </section>
 
-                <div class="form-group">
-                <label for="amount">Amount</label>
-                <input class="info" type="number" id="amount" name="value" placeholder="Enter amount" step="0.01" required>
-                </div>
+    <section id="add-transaction">
+        <form id="transaction-form" method="POST" action="{{ url_for('transaction.add_transaction') }}">
 
-                <div class="form-group">
-                <label for="currency">Currency</label>
-                <select class="info" id="currency" name="coin" required>
-                    {% for code in values.keys() %}
-                        <option value="{{ code }}">{{ code }}</option>
-                    {% endfor %}
-                </select>
-                </div>
-
-                <div class="form-group">
-                <button class="submit-btn" type="submit">Add Transaction</button>
-                </div>
-
-            </form>
-        </section>
-
-
-
-        <section id="display-transactions" aria-label="Transaction Table">
-         
-            <div id="table-information-container">
-                <table id="transaction-table">
-                <thead>
-                    <tr>
-                    <th>Date</th>
-                    <th>Description</th>
-                    <th>Type</th>
-                    <th>Category</th>
-                    <th>Amount</th>
-                    <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for t in transactions %}
-                    <tr>
-                    <td>{{ t.date.strftime('%d/%m/%Y') }}</td>
-                    <td>{{ t.description }}</td>
-                    <td>{{ t.type }}</td>
-                    <td>{{ t.category }}</td>
-                    <td>{{ "€" if t.coin_type == "Euro" else "R$" }} {{ "{:,.2f}".format(t.value) }}</td>
-                    <td>
-
-                        <form method="POST" action="{{ url_for('transaction.delete_transaction', transaction_id=t.id) }}" style="display: inline;">
-                            <button class="delete-btn">Delete</button>
-                        </form>
-                                                
-                    </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-                </table>
+            <div class="form-group">
+            <label for="date">Date</label>
+            <input class="info" type="date" id="date" name="date" required>
             </div>
-        </section>
 
-    </div>
-    
+            <div class="form-group">
+            <label for="type">Type</label>
+            <select class="info" id="type" name="type" required>
+                <option value="Income">Income</option>
+                <option value="Expense">Expense</option>
+            </select>
+            </div>
+
+            <div class="form-group">
+            <label for="description">Description</label>
+            <input class="info" type="text" id="description" name="description" placeholder="Enter description" required>
+            </div>
+
+            <div class="form-group">
+            <label for="category">Category</label>
+            <select class="info" id="category" name="category" required>
+                {% for category in ["Food", "Monthly Bills", "Cleaning/Hygiene", "Takeout", "Travel", "Housing", "Mensa", "Others", "Restaurant", "Clothing", "Investments", "Salary"] %}
+                <option value="{{ category }}">{{ category }}</option>
+                {% endfor %}
+            </select>
+            </div>
+
+            <div class="form-group">
+            <label for="amount">Amount</label>
+            <input class="info" type="number" id="amount" name="value" placeholder="Enter amount" step="0.01" required>
+            </div>
+
+            <div class="form-group">
+            <label for="currency">Currency</label>
+            <select class="info" id="currency" name="coin" required>
+                {% for code in values.keys() %}
+                    <option value="{{ code }}">{{ code }}</option>
+                {% endfor %}
+            </select>
+            </div>
+
+            <div class="form-group">
+            <button class="submit-btn" type="submit">Add Transaction</button>
+            </div>
+        </form>
+    </section>
+
+    <section id="display-transactions" aria-label="Transaction Table">
+        <div id="table-information-container">
+            <table id="transaction-table">
+            <thead>
+                <tr>
+                <th>Date</th>
+                <th>Description</th>
+                <th>Type</th>
+                <th>Category</th>
+                <th>Amount</th>
+                <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for t in transactions %}
+                <tr>
+                <td>{{ t.date.strftime('%d/%m/%Y') }}</td>
+                <td>{{ t.description }}</td>
+                <td>{{ t.type }}</td>
+                <td>{{ t.category }}</td>
+                <td>
+                    {% if t.coin_type == "EUR" %}
+                        €
+                    {% elif t.coin_type == "Dolar" or t.coin_type == "USD" %}
+                        $
+                    {% else %}
+                        R$
+                    {% endif %}
+                    {{ "{:,.2f}".format(t.value).replace(",", "X").replace(".", ",").replace("X", ".") }}
+                </td>
+                <td>
+                    <form method="POST" action="{{ url_for('transaction.delete_transaction', transaction_id=t.id) }}" style="display: inline;">
+                        <button class="delete-btn">Delete</button>
+                    </form>                                         
+                </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+            </table>
+        </div>
+    </section>
+</div>
 {% endblock %}
 
 

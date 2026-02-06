@@ -8,4 +8,6 @@ class Config:
     UPLOAD_FOLDER = "static/images"
     ENV = "development"
     DEBUG = True
+    ENABLED_CRYPTOS_BRL = ["BTCBRL", "ETHBRL", "SOLBRL", "BNBBRL", "XRPBRL", "ADABRL"]
+
 

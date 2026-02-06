@@ -1,56 +1,61 @@
+/* ========================================
+   MAIN STRUCTURE
+========================================= */
 main {
     display: flex;
-    flex: 1 0 auto; /* permite crescer conforme o conteúdo */
+    flex: 1 0 auto; /* Allows growth based on content */
     background-color: #eeeff6;
-    padding-bottom: 0px;
     min-width: 92%;
+    /* padding-bottom: 0px removido (padrão) */
 }
 
 header {
-  height: 8%;
-  background-color: #26263e;
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 2vh;
+    height: 8%;
+    background-color: #26263e;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 2vh;
 }
 
-
-
+/* ========================================
+   SIDEBAR & CONTENT WRAPPER
+========================================= */
 #sidebar {
-  background-color: #373752;
-  width: 4%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+    background-color: #373752;
+    width: 4%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 }
 
 #main-content {
-  display: flex;
-  flex-direction: column;
-  width: 96%;
-  height: 100%;
+    display: flex;
+    flex-direction: column;
+    width: 96%;
+    height: 100%;
 }
 
+/* ========================================
+   TOP NAVIGATION & PAGE AREA
+========================================= */
 #top-nav {
-  height: 9%;
-  width: 100%;
-  background-color: white;
-  border-bottom: 2px solid #dcdadb;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  max-height: 70px;
-  
+    height: 9%;
+    width: 100%;
+    background-color: white;
+    border-bottom: 2px solid #dcdadb;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    max-height: 70px;
 }
 
 #page-content {
-  display: flex;
-  gap: 10%;
-  padding: 1%;
-  width: 100%;
-  height: 91%;
+    display: flex;
+    gap: 10%; /* Nota: gap de 10% + width 100% pode causar overflow horizontal se houver padding */
+    padding: 1%;
+    width: 100%;
+    height: 91%;
 }
-

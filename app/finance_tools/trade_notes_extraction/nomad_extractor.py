@@ -8,23 +8,36 @@ from datetime import datetime
 from app.models import PersonalTradeStatement
 
 class NomadExtractor:
+    """
+    Extracts and persists trade data from Nomad brokerage PDF statements.
+
+    This extractor is responsible for:
+    - Parsing multi-page Nomad trade confirmations
+    - Normalizing foreign stock trade data (USD)
+    - Persisting trades into the database
+    """
+        
     OBS_CODES = {"#", "F", "B", "A", "H", "X", "P", "Y", "L", "T", "I", "@", '@#', 'D#', 'D'}
+
 
     @staticmethod
     def get_info_from_nomad(filename, file, user_id):
         """
-        Processes a brokerage note PDF file, extracts trade data,
-        calculates proportional fees, and saves the data to the database.
-        Returns a list of unique traded tickers.
+        Main entry point for Nomad statement extraction.
+
+        Workflow:
+        - Extracts raw PDF text and trade date
+        - Prevents duplicate imports using statement number
+        - Normalizes extracted trade blocks into a DataFrame
+        - Persists trades into the database
         """
         try:
             negotiation_number = os.path.basename(filename)
             text, date = NomadExtractor._extract_data_from_statement(file)
 
-            # print(text)
             exists = PersonalTradeStatement.query.filter_by(user_id=user_id, statement_number=negotiation_number).first()
             if exists:
-                print(f"Nota {negotiation_number} já registrada.")
+                print(f"Invoice {negotiation_number} already recorded.")
                 return None
                 
             cleaned_lines = NomadExtractor._clean_content(text)
@@ -39,6 +52,7 @@ class NomadExtractor:
             traceback.print_exc() 
             return None
         
+
     @staticmethod
     def _extract_data_from_statement(file):
         """Extracts raw text and metadata from the PDF statement."""
@@ -46,6 +60,7 @@ class NomadExtractor:
             text = "".join(page.get_text() for page in doc)                
             date = re.search(r'Confirmation Date\s*[:\-]?\s*(\d{1,2}/\d{1,2}/\d{4})', text, re.IGNORECASE).group(1)
         return text, date
+
 
     @staticmethod
     def _clean_content(text):
@@ -68,7 +83,9 @@ class NomadExtractor:
 
     @staticmethod
     def _create_df_records(cleaned_lines, date, statement_number):
-        """Transforma os dados limpos da nota da Nomad em um DataFrame estruturado."""
+        """
+        Converts cleaned Nomad trade lines into a structured DataFrame.
+        """
         user_id = 1
         brokerage = "Nomad"
         records = []
@@ -86,7 +103,7 @@ class NomadExtractor:
                 unit_price = float(block[6].strip())
                 final_value = float(block[20].replace("$", "").strip())
             except Exception as e:
-                print(f"Erro ao processar bloco: {block}\n{e}")
+                print(f"Error processing block: {block}\n{e}")
                 continue
 
             records.append({

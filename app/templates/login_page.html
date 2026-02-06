@@ -4,10 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Login - My Dashboard{% endblock %}</title>
-    <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/login_page.css') }}">
-    <!-- <link rel="stylesheet" href="../static/css/login_page.css"> -->
-
 </head>
 
 <body>
@@ -121,8 +118,6 @@
             el.style.opacity = "0";
             setTimeout(() => el.remove(), 500);
         });
-
         document.getElementById("create-account-form").reset();
-
     }, 5000);
 </script>
