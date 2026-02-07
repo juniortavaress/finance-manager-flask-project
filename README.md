@@ -14,11 +14,10 @@ The project is currently deployed and can be accessed here:
 
 Since this project is hosted on a **PythonAnywhere Free Tier**, there are specific operational limitations to keep in mind regarding the live link:
 
-1. **Real-Time Quotes:** Currency and asset price charts may not update or might appear static. This is because the free host restricts outgoing requests to external APIs that are not on their official "whitelist."
+1. **Real-Time Quotes:** Currency and asset price charts may not update. This is because the free host restricts outgoing requests to external APIs that are not on their official "whitelist."
 2. **Investment Data Stale-out:** Over time, the investment section may become outdated. The free plan does not support **Schedulers** (cron jobs), making it impossible to automate the daily background tasks required to fetch closing prices for stocks and cryptocurrencies.
-3. **Performance:** The application may experience a slight delay during the initial load if the server has been idle (hibernation mode).
 
-*For the full experience, including live API data fetching, it is recommended to run the project locally (see instructions below).*
+*For the full experience, including live API data fetching, it is recommended to run the project locally.*
 
 ---
 
@@ -34,15 +33,6 @@ Since this project is hosted on a **PythonAnywhere Free Tier**, there are specif
 
 * **Backend:** Python 3.10+ & Flask
 * **Database:** SQLite (SQLAlchemy ORM)
-* **Frontend:** HTML5, CSS3 (Custom Properties), JavaScript (ES6+)
+* **Frontend:** HTML, CSS and JavaScript
 * **Security:** Flask-Bcrypt & Flask-Login
 * **Data Analysis:** Pandas for financial data processing
-
-## 🔧 Local Setup
-
-To test the application with all features active (including API calls and daily updates):
-
-1. **Clone the repository:**
-   ```bash
-   git clone [https://github.com/YOUR_USERNAME/finance-manager-flask-project.git](https://github.com/YOUR_USERNAME/finance-manager-flask-project.git)
-   cd finance-manager-flask-project
