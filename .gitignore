@@ -1,2 +1,19 @@
+# Ambiente Virtual
+venv/
+.venv/
+env/
+
+# Arquivos do Python
 __pycache__/
-utils/
+*.pyc
+
+# Banco de dados local (SQLite)
+instance/
+*.db
+
+# Pastas do VS Code ou Sistema
+.vscode/
+.DS_Store
+
+# Arquivos de variáveis de ambiente
+.env
